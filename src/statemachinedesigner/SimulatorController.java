@@ -7,7 +7,6 @@ package statemachinedesigner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,7 +83,7 @@ public class SimulatorController {
         listy.addAll(coll);
         java.util.Collections.sort(listy);
         for (Object s : listy) {
-            System.out.println((String) _finalStates.get(s));
+//            System.out.println((String) _finalStates.get(s));
             System.out.println((String) s);
         }
     }
