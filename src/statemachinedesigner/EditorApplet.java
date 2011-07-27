@@ -41,6 +41,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ScalingControl;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import java.util.LinkedList;
+import javax.swing.JLabel;
 
 public class EditorApplet extends JApplet {
 
@@ -110,8 +111,9 @@ public class EditorApplet extends JApplet {
      * create a graph.
      *
      */
-    public EditorApplet() {
+    public EditorApplet(SimulatorController controller) {
         // create a simple graph for the demo
+        _controller = controller;
         _graph = new DirectedSparseGraph<Number, Number>();
 
         this.layout = new StaticLayout<Number, Number>(_graph,
@@ -166,6 +168,7 @@ public class EditorApplet extends JApplet {
                     }
                 }
                 vv.repaint();
+
             }
         });
         JButton clearButton = new JButton("Clear All");
@@ -199,19 +202,24 @@ public class EditorApplet extends JApplet {
         });
 
         //to be removed
-        JButton help = new JButton("Help");
-        help.addActionListener(new ActionListener() {
+        JButton helpButton = new JButton("Help");
+        helpButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(vv, instructions);
             }
         });
-
+        JComboBox modeBox = graphMouse.getModeComboBox();
+        modeBox.removeItemAt(0); //transforming
+        modeBox.removeItemAt(2); //annotating
+        modeBox.setToolTipText("Editing mode allows for insertion and removal of edges/vertices; Picking mode is for placement");
         JPanel controlPanel = new JPanel();
+        controlPanel.add(new JLabel("Mouse Mode"));
+        controlPanel.add(modeBox);
         controlPanel.add(submitButton);
         controlPanel.add(clearButton);
         controlPanel.add(clearEdgesButton);
-        controlPanel.add(help);
+        controlPanel.add(helpButton);
         content.add(controlPanel, BorderLayout.SOUTH);
     }
 
@@ -238,4 +246,5 @@ public class EditorApplet extends JApplet {
     }
     private int vertexCount;
     private int edgeCount;
+    private SimulatorController _controller;
 }

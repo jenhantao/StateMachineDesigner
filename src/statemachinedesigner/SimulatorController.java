@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
  *
  * @author Jenhan Tao
@@ -159,7 +160,7 @@ public class SimulatorController {
                 //if the state did not change and did not express a reporter, then it is a state that did nothing, a dead state
                 if (newState.equals(_currentState) && !_finalStates.containsValue(_currentState)) {
                     _deadStates.put(_input + " " + _promoterNumber, newState);
-                //dead states only lead to other dead states
+                    //dead states only lead to other dead states
                 } else if (_deadStates.containsKey(_input)) {
                     _deadStates.put(_input + " " + _promoterNumber, newState);
                 }

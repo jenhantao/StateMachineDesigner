@@ -22,7 +22,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
     public SimulatorFrame() {
         _controller = new SimulatorController(this);
         initComponents();
-        EditorApplet editPanel = new EditorApplet();
+        EditorApplet editPanel = new EditorApplet(_controller);
       
         designInputPanel.setLayout(new BorderLayout());
         designInputPanel.add(editPanel.getContentPane(), BorderLayout.CENTER);
