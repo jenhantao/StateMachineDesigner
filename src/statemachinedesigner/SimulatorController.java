@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 /**
  *
  * @author Jenhan Tao
@@ -54,6 +53,7 @@ public class SimulatorController {
         _inputSet = new LinkedList<String>();
         _seenStates = new HashMap<String, String>();
         _finalStates = new HashMap<String, String>();
+        _deadStates = new HashMap<String, String>();
         _unexploredStates = new LinkedList<String>();
         _currentState = designInput;
         _unexploredStates.offer(designInput);
@@ -66,7 +66,15 @@ public class SimulatorController {
         LinkedList listy = new LinkedList<String>();
         listy.addAll(coll);
         java.util.Collections.sort(listy);
-        String toReturn = "";
+        String toReturn = "Results\n";
+        for (Object s : listy) {
+            toReturn = toReturn + s + "\n";
+        }
+        toReturn = toReturn + "\n\nDead States\n";
+        coll = _deadStates.keySet();
+        listy = new LinkedList<String>();
+        listy.addAll(coll);
+        java.util.Collections.sort(listy);
         for (Object s : listy) {
             toReturn = toReturn + s + "\n";
         }
@@ -78,7 +86,6 @@ public class SimulatorController {
         while (!_unexploredStates.isEmpty()) {
             _currentState = _unexploredStates.poll();
             _input = _inputSet.poll();
-//            System.out.println("current state: " + _currentState);
             ArrayList<Integer> activePromoters = findActivePromoters(_currentState);
             for (Integer i : activePromoters) {
                 activatePromoter(i);
@@ -106,16 +113,7 @@ public class SimulatorController {
 
     private void activatePromoter(int promoterNumber) {
         _promoterNumber = promoterNumber;
-
-//        String numberString = Integer.toString(promoterNumber);
-//        String temp = "";
-//        for (int i = 0; i < numberString.length(); i++) {
-//            temp = temp + "[" + numberString.substring(i, i + 1) + "]{1}";
-//        }
-
-
         if (_input.indexOf(Integer.toString(promoterNumber)) < 0) { //don't allow repeat use of promoters
-//            System.out.println("Activating promoter: " + promoterNumber);
             ArrayList<Integer> activatedInvertase = new ArrayList<Integer>();
             ArrayList<Integer> starts = new ArrayList<Integer>();
             ArrayList<Integer> ends = new ArrayList<Integer>();
@@ -127,7 +125,6 @@ public class SimulatorController {
                     end = _currentState.length();
                 }
                 ends.add(end);
-//                System.out.println("start: "+start+" stop: "+end);
                 start = _currentState.indexOf("P" + promoterNumber + " ", start + 1);
                 end = _currentState.indexOf("X ", start);
             }
@@ -139,36 +136,44 @@ public class SimulatorController {
                     Matcher m = p.matcher(regionOfInterest);
                     while (m.find()) {
 //                        System.out.println("expressed reporter: " + m.group());
-                        _finalStates.put(_input + " " + _promoterNumber+" "+m.group(), _currentState);
+                        _finalStates.put(_input + " " + _promoterNumber + " " + m.group(), _currentState);
 
                     }
+
                     p = Pattern.compile("[@]{1}[\\d]+[^']{1}");
                     m = p.matcher(regionOfInterest);
 
                     while (m.find()) {
-//                activateInvertase(Integer.parseInt(m.group().substring(1).trim()));
                         activatedInvertase.add(Integer.parseInt(m.group().substring(1).trim()));
                     }
-
-
-
                 }
             }
 
             String newState = activateInvertase(activatedInvertase);
-//            System.out.println("inputs used: " + _input + " " + _promoterNumber);
-//            System.out.println("new state:     " + newState);
+            if (_view.isShowIntermediate()) {
+                System.out.println("current state:" + _currentState);
+                System.out.println("inputs used:" + _input + " " + _promoterNumber);
+                System.out.println("new state:" + newState);
+            }
             if (!_seenStates.containsKey(_input + " " + _promoterNumber)) {
-//                System.out.println("added new state");
+                //if the state did not change and did not express a reporter, then it is a state that did nothing, a dead state
+                if (newState.equals(_currentState) && !_finalStates.containsValue(_currentState)) {
+                    _deadStates.put(_input + " " + _promoterNumber, newState);
+                //dead states only lead to other dead states
+                } else if (_deadStates.containsKey(_input)) {
+                    _deadStates.put(_input + " " + _promoterNumber, newState);
+                }
                 _seenStates.put(_input + " " + _promoterNumber, newState);
                 if (_view.isFinalReporter()) {
                     if (!_finalStates.containsValue(newState)) {
                         _unexploredStates.add(newState);
+                        _inputSet.add(_input + " " + _promoterNumber);
                     }
                 } else {
                     _unexploredStates.add(newState);
+                    _inputSet.add(_input + " " + _promoterNumber);
+
                 }
-                _inputSet.add(_input + " " + _promoterNumber);
 
 
             }
@@ -179,7 +184,6 @@ public class SimulatorController {
     private String activateInvertase(ArrayList<Integer> activeSites) {
         String newState = _currentState;
         for (int invertaseNumber : activeSites) {
-//            System.out.println("Activating invertase: " + invertaseNumber);
             String numberString = Integer.toString(invertaseNumber);
             String temp = "";
             for (int i = 0; i < numberString.length(); i++) {
@@ -199,9 +203,9 @@ public class SimulatorController {
             }
             if (Math.min(starts.size(), ends.size()) > 0) {
                 for (int i = 0; i < Math.min(starts.size(), ends.size()); i++) {
-                    String first = newState.substring(0, starts.get(i) - 1);
-                    String second = newState.substring(starts.get(i) - 1, ends.get(i) - 1);
-                    String last = newState.substring(ends.get(i) - 1);
+                    String first = newState.substring(0, starts.get(i));
+                    String second = newState.substring(starts.get(i) - 1, ends.get(i));
+                    String last = newState.substring(ends.get(i));
                     temp = "";
                     String[] tokens = second.split("\\s");
                     for (int j = 0; j < tokens.length; j++) {
@@ -229,14 +233,23 @@ public class SimulatorController {
                             temp = temp + " ";
                         }
                     }
-                    newState = first + temp + last;
+                    int oldLength = newState.length();
+                    newState = (first + temp + last);
+                    int lengthDifference = newState.length() - oldLength;
+                    for (int k = 0; k < starts.size(); k++) {
+                        starts.set(k, starts.get(k) + lengthDifference);
+
+                    }
+                    for (int k = 0; k < ends.size(); k++) {
+                        ends.set(k, ends.get(k) + lengthDifference);
+                    }
                 }
             }
         }
         return newState;
 
     }
-    private boolean reportersFinal;
+    private HashMap<String, String> _deadStates;
     private SimulatorFrame _view;
     private HashMap<String, String> _seenStates;
     private HashMap<String, String> _finalStates;

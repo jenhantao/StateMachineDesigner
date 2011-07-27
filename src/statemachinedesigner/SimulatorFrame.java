@@ -10,6 +10,8 @@
  */
 package statemachinedesigner;
 
+import java.awt.BorderLayout;
+
 /**
  *
  * @author Henry
@@ -20,6 +22,11 @@ public class SimulatorFrame extends javax.swing.JFrame {
     public SimulatorFrame() {
         _controller = new SimulatorController(this);
         initComponents();
+        EditorApplet editPanel = new EditorApplet();
+      
+        designInputPanel.setLayout(new BorderLayout());
+        designInputPanel.add(editPanel.getContentPane(), BorderLayout.CENTER);
+
     }
 
     /** This method is called from within the constructor to
@@ -31,16 +38,100 @@ public class SimulatorFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        runSimulationButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        mainTabbedPane = new javax.swing.JTabbedPane();
+        designPanel = new javax.swing.JPanel();
+        designInputPanel = new javax.swing.JPanel();
+        designResultPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jLabel3 = new javax.swing.JLabel();
+        testPanel = new javax.swing.JPanel();
+        testInputScrollPane = new javax.swing.JScrollPane();
         designTextArea = new javax.swing.JTextArea();
+        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        testResultsScrollPane = new javax.swing.JScrollPane();
         resultsTextArea = new javax.swing.JTextArea();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        runSimulationButton = new javax.swing.JButton();
+        intermediateStepsCheckbox = new javax.swing.JCheckBox();
+        finalReportersCheckbox = new javax.swing.JCheckBox();
+        statusLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        designInputPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        javax.swing.GroupLayout designInputPanelLayout = new javax.swing.GroupLayout(designInputPanel);
+        designInputPanel.setLayout(designInputPanelLayout);
+        designInputPanelLayout.setHorizontalGroup(
+            designInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 655, Short.MAX_VALUE)
+        );
+        designInputPanelLayout.setVerticalGroup(
+            designInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 416, Short.MAX_VALUE)
+        );
+
+        designResultPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jLabel3.setText("Result:");
+
+        javax.swing.GroupLayout designResultPanelLayout = new javax.swing.GroupLayout(designResultPanel);
+        designResultPanel.setLayout(designResultPanelLayout);
+        designResultPanelLayout.setHorizontalGroup(
+            designResultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 655, Short.MAX_VALUE)
+            .addGroup(designResultPanelLayout.createSequentialGroup()
+                .addComponent(jLabel3)
+                .addContainerGap())
+        );
+        designResultPanelLayout.setVerticalGroup(
+            designResultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, designResultPanelLayout.createSequentialGroup()
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        javax.swing.GroupLayout designPanelLayout = new javax.swing.GroupLayout(designPanel);
+        designPanel.setLayout(designPanelLayout);
+        designPanelLayout.setHorizontalGroup(
+            designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(designPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(designInputPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(designResultPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        designPanelLayout.setVerticalGroup(
+            designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, designPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(designInputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(designResultPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        mainTabbedPane.addTab("Design", designPanel);
+
+        designTextArea.setColumns(20);
+        designTextArea.setRows(5);
+        testInputScrollPane.setViewportView(designTextArea);
+
+        jLabel1.setText("Design");
+
+        jLabel2.setText("Results");
+
+        resultsTextArea.setColumns(20);
+        resultsTextArea.setEditable(false);
+        resultsTextArea.setRows(5);
+        testResultsScrollPane.setViewportView(resultsTextArea);
 
         runSimulationButton.setText("Run Simulation");
         runSimulationButton.addActionListener(new java.awt.event.ActionListener() {
@@ -49,21 +140,62 @@ public class SimulatorFrame extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setText("Design");
+        intermediateStepsCheckbox.setText("Show intermediate steps");
 
-        designTextArea.setColumns(20);
-        designTextArea.setRows(5);
-        jScrollPane1.setViewportView(designTextArea);
+        finalReportersCheckbox.setSelected(true);
+        finalReportersCheckbox.setText("All Reporters final");
 
-        jLabel2.setText("Results");
+        statusLabel.setText("Status: waiting...");
+        statusLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        resultsTextArea.setColumns(20);
-        resultsTextArea.setEditable(false);
-        resultsTextArea.setRows(5);
-        jScrollPane2.setViewportView(resultsTextArea);
+        javax.swing.GroupLayout testPanelLayout = new javax.swing.GroupLayout(testPanel);
+        testPanel.setLayout(testPanelLayout);
+        testPanelLayout.setHorizontalGroup(
+            testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(testPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 597, Short.MAX_VALUE)
+                    .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 597, Short.MAX_VALUE))
+                .addContainerGap())
+            .addGroup(testPanelLayout.createSequentialGroup()
+                .addGap(74, 74, 74)
+                .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, testPanelLayout.createSequentialGroup()
+                        .addComponent(finalReportersCheckbox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(intermediateStepsCheckbox)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 131, Short.MAX_VALUE)
+                .addComponent(runSimulationButton)
+                .addContainerGap())
+        );
+        testPanelLayout.setVerticalGroup(
+            testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(testPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(testInputScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(testResultsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addComponent(statusLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(runSimulationButton)
+                    .addComponent(finalReportersCheckbox)
+                    .addComponent(intermediateStepsCheckbox))
+                .addContainerGap())
+        );
 
-        jCheckBox1.setSelected(true);
-        jCheckBox1.setText("All Reporters final");
+        mainTabbedPane.addTab("Test", testPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -71,42 +203,26 @@ public class SimulatorFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jCheckBox1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 173, Short.MAX_VALUE)
-                        .addComponent(runSimulationButton))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE))
+                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(runSimulationButton)
-                    .addComponent(jCheckBox1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 595, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-public boolean isFinalReporter() {
-    return jCheckBox1.isSelected();
-}
+    public boolean isFinalReporter() {
+        return finalReportersCheckbox.isSelected();
+    }
+
+    public boolean isShowIntermediate() {
+        return intermediateStepsCheckbox.isSelected();
+    }
     private void runSimulationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runSimulationButtonActionPerformed
         //input will have components split by spaces;
         //p# will denote a promoter
@@ -133,13 +249,23 @@ public boolean isFinalReporter() {
     }
     private SimulatorController _controller;
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel designInputPanel;
+    private javax.swing.JPanel designPanel;
+    private javax.swing.JPanel designResultPanel;
     private javax.swing.JTextArea designTextArea;
-    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox finalReportersCheckbox;
+    private javax.swing.JCheckBox intermediateStepsCheckbox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTabbedPane mainTabbedPane;
     private javax.swing.JTextArea resultsTextArea;
     private javax.swing.JButton runSimulationButton;
+    private javax.swing.JLabel statusLabel;
+    private javax.swing.JScrollPane testInputScrollPane;
+    private javax.swing.JPanel testPanel;
+    private javax.swing.JScrollPane testResultsScrollPane;
     // End of variables declaration//GEN-END:variables
 }
