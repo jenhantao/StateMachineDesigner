@@ -250,6 +250,25 @@ public class SimulatorController {
         return newState;
 
     }
+
+    /**
+     * validates words that need to be incorporated into the design
+     * returns either a blank string or a valid design input composed of integers and spaces only
+     * @return
+     */
+    public String validateDesignInput(String s) {
+//        if (!s.substring(s.length() - 1).equals(" ")) {
+//            s = s + " ";//append space to simplify character matching
+//        }
+        s = s.replace("  ", " ");//remove extra spaces
+        if (s.matches("[[\\d]+[\\s]{1}]+")) {
+            return s; //valid input
+
+        } else {
+
+            return "invalid characters in input";
+        }
+    }
     private HashMap<String, String> _deadStates;
     private SimulatorFrame _view;
     private HashMap<String, String> _seenStates;
