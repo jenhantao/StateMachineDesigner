@@ -61,6 +61,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         addButton = new javax.swing.JButton();
         removeButton = new javax.swing.JButton();
         generateButton = new javax.swing.JButton();
+        generateButton1 = new javax.swing.JButton();
         testPanel = new javax.swing.JPanel();
         testInputScrollPane = new javax.swing.JScrollPane();
         designTextArea = new javax.swing.JTextArea();
@@ -152,6 +153,14 @@ public class SimulatorFrame extends javax.swing.JFrame {
             }
         });
 
+        generateButton1.setText("Test!!!");
+        generateButton1.setToolTipText("Generate a new design");
+        generateButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generateButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout designPanelLayout = new javax.swing.GroupLayout(designPanel);
         designPanel.setLayout(designPanelLayout);
         designPanelLayout.setHorizontalGroup(
@@ -166,10 +175,12 @@ public class SimulatorFrame extends javax.swing.JFrame {
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
                             .addComponent(inputTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(generateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(removeButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
-                            .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE))))
+                        .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(generateButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
+                            .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(generateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(removeButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
+                                .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         designPanelLayout.setVerticalGroup(
@@ -187,7 +198,9 @@ public class SimulatorFrame extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, designPanelLayout.createSequentialGroup()
                         .addComponent(removeButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateButton))
+                        .addComponent(generateButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(generateButton1))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(designInputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -332,6 +345,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 inputTextField.setText("");
             }
             inputTextField.requestFocus();
+            _controller.getModel().drawGraph();
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -339,20 +353,27 @@ public class SimulatorFrame extends javax.swing.JFrame {
         int[] indices = wordList.getSelectedIndices();
         if (indices.length > 0) {
             for (int i = 0; i < indices.length; i++) {
-                System.out.println(indices[i]);
+                _controller.removeDesignInput((String) _designInputModel.get(i));
                 _designInputModel.remove(indices[i] - i);
             }
             int index = indices[indices.length - 1] - indices.length + 1;
             wordList.setSelectedIndex(index);
             wordList.ensureIndexIsVisible(index);
-
+            _controller.getModel().drawGraph();
             indices = null;
         }
+        _controller.getModel().reset();
+        
+
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_generateButtonActionPerformed
+
+    private void generateButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButton1ActionPerformed
+        System.out.println("abcdefg".substring("abcdefg".indexOf("f")));
+    }//GEN-LAST:event_generateButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -376,6 +397,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea designTextArea;
     private javax.swing.JCheckBox finalReportersCheckbox;
     private javax.swing.JButton generateButton;
+    private javax.swing.JButton generateButton1;
     private javax.swing.JTextField inputTextField;
     private javax.swing.JCheckBox intermediateStepsCheckbox;
     private javax.swing.JLabel jLabel1;

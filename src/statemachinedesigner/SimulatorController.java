@@ -7,6 +7,7 @@ package statemachinedesigner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,12 +25,15 @@ public class SimulatorController {
         _unexploredStates = new LinkedList<String>();
         _inputSet = new LinkedList<String>();
         _input = "";
-        _model =new DesignTrie(this);
+        _model = new DesignTrie(this);
+        _designInputs = new HashSet();
 
     }
-public DesignTrie getModel() {
-    return _model;
-}
+
+    public DesignTrie getModel() {
+        return _model;
+    }
+
     /**
      * Starts the simulation and returns the result text to the view, requires input text, which is the design
      * @param
@@ -266,14 +270,33 @@ public DesignTrie getModel() {
         s = s.replace("  ", " ");//remove extra spaces
         if (s.matches("[[\\d]+[\\s]{1}]+")) {
             _model.addPath(s);
+            _designInputs.add(s);
             return s; //valid input
         } else {
             return "invalid characters in input";
         }
     }
 
-
-    
+    public void removeDesignInput(String s) {
+        String[] tokens = s.split("\\s");
+        if (_designInputs.contains(s)) {
+            System.out.println("removed: "+s);
+            _designInputs.remove(s);
+        }
+//        int i = 0;
+//        while (i < tokens.length && !_designInputs.contains(s.substring(0, s.indexOf(tokens[tokens.length - i - 1])))) {
+//            System.out.println("removing: " + tokens[tokens.length - i - 1]);
+//            _model.removeNode(tokens[tokens.length - i - 1]);
+//            i++;
+//        }
+        _model.reset();
+        _model.getView().initGraph();
+        for (String di:_designInputs) {
+        addDesignInput(di);
+        }
+        _model.drawGraph();
+    }
+    private HashSet<String> _designInputs;
     private DesignTrie _model;
     private HashMap<String, String> _deadStates;
     private SimulatorFrame _view;

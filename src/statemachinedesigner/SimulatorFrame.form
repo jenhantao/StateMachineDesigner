@@ -67,10 +67,13 @@
                                   <Component id="inputTextField" alignment="1" pref="583" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="generateButton" max="32767" attributes="1"/>
-                                  <Component id="removeButton" pref="77" max="32767" attributes="1"/>
-                                  <Component id="addButton" alignment="0" pref="77" max="32767" attributes="1"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="generateButton1" pref="77" max="32767" attributes="1"/>
+                                  <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
+                                      <Component id="generateButton" max="32767" attributes="1"/>
+                                      <Component id="removeButton" pref="77" max="32767" attributes="1"/>
+                                      <Component id="addButton" alignment="0" pref="77" max="32767" attributes="1"/>
+                                  </Group>
                               </Group>
                           </Group>
                       </Group>
@@ -97,6 +100,8 @@
                               <Component id="removeButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="generateButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="generateButton1" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jScrollPane3" pref="142" max="32767" attributes="0"/>
                       </Group>
@@ -237,6 +242,15 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="generateButton1">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Test!!!"/>
+                <Property name="toolTipText" type="java.lang.String" value="Generate a new design"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateButton1ActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

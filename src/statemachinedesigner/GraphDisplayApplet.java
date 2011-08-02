@@ -26,7 +26,9 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Timer;
+import org.apache.commons.collections15.Transformer;
 
 /**
  *
@@ -36,40 +38,47 @@ import java.util.Timer;
 public class GraphDisplayApplet extends javax.swing.JApplet {
 
     private SimulatorController _controller;
-    private Graph<Number, Number> _graph = null;
-    private VisualizationViewer<Number, Number> vv = null;
-    private AbstractLayout<Number, Number> layout = null;
-    Timer timer;
+    private Graph<Number, PromoterEdge> _graph = null;
+    private VisualizationViewer<Number, PromoterEdge> vv = null;
+    private AbstractLayout<Number, PromoterEdge> layout = null;
     boolean done;
     private int edgeCount;
-    private  DesignTrie _trie;
+    private int vertexCount;
+    private DesignTrie _trie;
 
     GraphDisplayApplet(DesignTrie dt) {
         _trie = dt;
-  }
+    }
 
     @Override
     public void init() {
         edgeCount = 0;
+        vertexCount = 0;
         //create a graph
-        Graph<Number, Number> ig = Graphs.<Number, Number>synchronizedDirectedGraph(new DirectedSparseMultigraph<Number, Number>());
+        Graph<Number, PromoterEdge> ig = Graphs.<Number, PromoterEdge>synchronizedDirectedGraph(new DirectedSparseMultigraph<Number, PromoterEdge>());
 
-        ObservableGraph<Number, Number> og = new ObservableGraph<Number, Number>(ig);
-        og.addGraphEventListener(new GraphEventListener<Number, Number>() {
+        ObservableGraph<Number, PromoterEdge> og = new ObservableGraph<Number, PromoterEdge>(ig);
 
-            public void handleGraphEvent(GraphEvent<Number, Number> evt) {
-                System.err.println("got " + evt);
-            }
-        });
         this._graph = og;
         //create a graphdraw
-        layout = new FRLayout2<Number, Number>(_graph);
+        layout = new FRLayout2<Number, PromoterEdge>(_graph);
 //scale this to the size of the design input panel
-        vv = new VisualizationViewer<Number, Number>(layout, new Dimension(600, 250));
+        vv = new VisualizationViewer<Number, PromoterEdge>(layout, new Dimension(600, 250));
         getContentPane().setLayout(new BorderLayout());
-        vv.setGraphMouse(new DefaultModalGraphMouse<Number, Number>());
+        vv.setGraphMouse(new DefaultModalGraphMouse<Number, PromoterEdge>());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Number>());
+
+        //code below adds edge labels
+        vv.getRenderContext().setEdgeLabelTransformer(new Transformer<PromoterEdge, String>() {
+
+            public String transform(PromoterEdge e) {
+                return (e.getWeight());
+            }
+        });
+
+
+
         getContentPane().add(vv);
     }
 
@@ -81,47 +90,66 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
         vv.repaint();
     }
 
-public void createVertex(Integer v) {
-     try {
+    /**
+     * Draws a visual representation of _trie
+     */
+    public void initGraph() {
+        edgeCount = 0;
+        vertexCount = 0;
+        PromoterEdge.reset();
+        ArrayList<Number> vertices = new ArrayList<Number>();
+        vertices.addAll(_graph.getVertices());
+        for (Number n:vertices) {
+            _graph.removeVertex(n);
+        }
+    }
+
+    public void createVertex() {
+        try {
 
             layout.lock(true);
             Relaxer relaxer = vv.getModel().getRelaxer();
             relaxer.pause();
-            if (!_graph.containsVertex(v)) {
-                _graph.addVertex(v);
+            if (!_graph.containsVertex(vertexCount)) {
+                _graph.addVertex(vertexCount);
             }
-
+            vertexCount++;
             layout.initialize();
             relaxer.resume();
             layout.lock(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
-}
+    }
 
-    public void createEdge(Integer v1, Integer v2) {
+    public void createEdge(Integer v1, Integer v2, String label) {
         try {
 
             layout.lock(true);
             Relaxer relaxer = vv.getModel().getRelaxer();
             relaxer.pause();
             if (_graph.containsVertex(v1) && _graph.containsVertex(v2)) {
-                _graph.addEdge(edgeCount, v1, v2, EdgeType.DIRECTED);
-                edgeCount++;
-            } else if (!_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
-                _graph.addVertex(v1);
-                _graph.addVertex(v2);
-                _graph.addEdge(edgeCount, v1, v2);
-                edgeCount++;
-            } else if (_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
-                _graph.addVertex(v2);
-                _graph.addEdge(edgeCount, v1, v2);
-                edgeCount++;
-            } else if (!_graph.containsVertex(v1) && _graph.containsVertex(v2)) {
-                _graph.addVertex(v1);
-                _graph.addEdge(edgeCount, v1, v2);
-                edgeCount++;
+//                _graph.addEdge(edgeCount,v1, v2, EdgeType.DIRECTED);
+                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
+//                edgeCount++;
             }
+//            else if (!_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
+//                _graph.addVertex(v1);
+//                _graph.addVertex(v2);
+////                _graph.addEdge(edgeCount, v1, v2);
+//                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
+//                edgeCount++;
+//            } else if (_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
+//                _graph.addVertex(v2);
+////                _graph.addEdge(edgeCount, v1, v2);
+//                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
+//                edgeCount++;
+//            } else if (!_graph.containsVertex(v1) && _graph.containsVertex(v2)) {
+//                _graph.addVertex(v1);
+////                _graph.addEdge(edgeCount, v1, v2);
+//                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
+//                edgeCount++;
+//            }
 
             layout.initialize();
             relaxer.resume();
