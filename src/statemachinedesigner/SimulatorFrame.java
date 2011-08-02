@@ -31,6 +31,12 @@ public class SimulatorFrame extends javax.swing.JFrame {
 //              designInputPanel.setLayout(new BorderLayout());
 //        designInputPanel.add(editPanel.getContentPane(), BorderLayout.CENTER);
 
+        _gda = _controller.getModel().getView();
+        _gda.init();
+        designInputPanel.setLayout(new BorderLayout());
+        designInputPanel.add(_gda.getContentPane(), BorderLayout.CENTER);
+
+
     }
 
     /** This method is called from within the constructor to
@@ -181,11 +187,9 @@ public class SimulatorFrame extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, designPanelLayout.createSequentialGroup()
                         .addComponent(removeButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                    .addGroup(designPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addComponent(generateButton))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(designInputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(designResultPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -320,7 +324,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         String toAdd = inputTextField.getText();
         if (toAdd != null) {
             toAdd = toAdd.trim();
-            toAdd = _controller.validateDesignInput(toAdd);
+            toAdd = _controller.addDesignInput(toAdd);
             if (toAdd.contains("invalid")) {
                 JOptionPane.showMessageDialog(this, "Input has invalid characters\nRemember, only integers and spaces may be used");
             } else {
@@ -361,6 +365,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
             }
         });
     }
+    private GraphDisplayApplet _gda;
     private DefaultListModel _designInputModel;
     private SimulatorController _controller;
     // Variables declaration - do not modify//GEN-BEGIN:variables

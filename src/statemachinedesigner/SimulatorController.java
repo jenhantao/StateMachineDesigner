@@ -23,10 +23,13 @@ public class SimulatorController {
         _finalStates = new HashMap<String, String>();
         _unexploredStates = new LinkedList<String>();
         _inputSet = new LinkedList<String>();
-
         _input = "";
-    }
+        _model =new DesignTrie(this);
 
+    }
+public DesignTrie getModel() {
+    return _model;
+}
     /**
      * Starts the simulation and returns the result text to the view, requires input text, which is the design
      * @param
@@ -256,19 +259,22 @@ public class SimulatorController {
      * returns either a blank string or a valid design input composed of integers and spaces only
      * @return
      */
-    public String validateDesignInput(String s) {
+    public String addDesignInput(String s) {
 //        if (!s.substring(s.length() - 1).equals(" ")) {
 //            s = s + " ";//append space to simplify character matching
 //        }
         s = s.replace("  ", " ");//remove extra spaces
         if (s.matches("[[\\d]+[\\s]{1}]+")) {
+            _model.addPath(s);
             return s; //valid input
-
         } else {
-
             return "invalid characters in input";
         }
     }
+
+
+    
+    private DesignTrie _model;
     private HashMap<String, String> _deadStates;
     private SimulatorFrame _view;
     private HashMap<String, String> _seenStates;
