@@ -8,15 +8,15 @@ package statemachinedesigner;
  */
   public class PromoterEdge {
         String promoterNumber;   // should be private for good practice
-//        Number source;
-//        Number target;
-        int id;
+        Number source;
+        Number dest;
+        int id=0;
 
-        public PromoterEdge(String promoterNumber) {
+        public PromoterEdge(String promoterNumber, int source, int dest) {
             this.id = edgeCount++;
             this.promoterNumber = promoterNumber;
-//            this.source = source;
-//            this.target = target;
+            this.source = source;
+            this.dest = dest;
         }
 
         public String getWeight()
@@ -26,6 +26,14 @@ package statemachinedesigner;
         public static void reset() {
             edgeCount=0;
         }
+
+        public Number getSource() {
+            return source;
+        }
+        public Number getDest() {
+            return dest;
+        }
+       
 
 
         private static int edgeCount = 0;

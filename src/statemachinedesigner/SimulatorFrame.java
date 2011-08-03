@@ -30,8 +30,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
 //        EditorApplet editPanel = new EditorApplet(_controller);
 //              designInputPanel.setLayout(new BorderLayout());
 //        designInputPanel.add(editPanel.getContentPane(), BorderLayout.CENTER);
-
-        _gda = _controller.getModel().getView();
+        _gda = _controller.getGDA();
         _gda.init();
         designInputPanel.setLayout(new BorderLayout());
         designInputPanel.add(_gda.getContentPane(), BorderLayout.CENTER);
@@ -62,6 +61,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         removeButton = new javax.swing.JButton();
         generateButton = new javax.swing.JButton();
         generateButton1 = new javax.swing.JButton();
+        designStatusLabel = new javax.swing.JLabel();
         testPanel = new javax.swing.JPanel();
         testInputScrollPane = new javax.swing.JScrollPane();
         designTextArea = new javax.swing.JTextArea();
@@ -88,7 +88,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         designResultPanel.setLayout(designResultPanelLayout);
         designResultPanelLayout.setHorizontalGroup(
             designResultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
             .addGroup(designResultPanelLayout.createSequentialGroup()
                 .addComponent(jLabel3)
                 .addContainerGap())
@@ -122,11 +122,11 @@ public class SimulatorFrame extends javax.swing.JFrame {
         designInputPanel.setLayout(designInputPanelLayout);
         designInputPanelLayout.setHorizontalGroup(
             designInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 662, Short.MAX_VALUE)
+            .addGap(0, 536, Short.MAX_VALUE)
         );
         designInputPanelLayout.setVerticalGroup(
             designInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 257, Short.MAX_VALUE)
+            .addGap(0, 223, Short.MAX_VALUE)
         );
 
         addButton.setText("Add");
@@ -161,26 +161,29 @@ public class SimulatorFrame extends javax.swing.JFrame {
             }
         });
 
+        designStatusLabel.setText(" ");
+
         javax.swing.GroupLayout designPanelLayout = new javax.swing.GroupLayout(designPanel);
         designPanel.setLayout(designPanelLayout);
         designPanelLayout.setHorizontalGroup(
             designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, designPanelLayout.createSequentialGroup()
+            .addGroup(designPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(designInputPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(designResultPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, designPanelLayout.createSequentialGroup()
+                .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(designInputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(designResultPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(designPanelLayout.createSequentialGroup()
                         .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
-                            .addComponent(inputTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
+                            .addComponent(inputTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(generateButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
+                            .addComponent(generateButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
                             .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(generateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(removeButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
-                                .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)))))
+                                .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE))))
+                    .addComponent(designStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
                 .addContainerGap())
         );
         designPanelLayout.setVerticalGroup(
@@ -189,7 +192,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(designPanelLayout.createSequentialGroup()
-                        .addComponent(inputTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
+                        .addComponent(inputTextField)
                         .addGap(3, 3, 3))
                     .addGroup(designPanelLayout.createSequentialGroup()
                         .addComponent(addButton)
@@ -201,9 +204,11 @@ public class SimulatorFrame extends javax.swing.JFrame {
                         .addComponent(generateButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(generateButton1))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(designInputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(designStatusLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(designInputPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(designResultPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -252,8 +257,8 @@ public class SimulatorFrame extends javax.swing.JFrame {
                             .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 627, Short.MAX_VALUE)
-                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 627, Short.MAX_VALUE)))
+                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
+                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)))
                     .addGroup(testPanelLayout.createSequentialGroup()
                         .addGap(74, 74, 74)
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -262,7 +267,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                                 .addComponent(finalReportersCheckbox)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(intermediateStepsCheckbox)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 245, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(runSimulationButton)))
                 .addContainerGap())
         );
@@ -277,7 +282,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(testResultsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                 .addComponent(statusLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -295,13 +300,13 @@ public class SimulatorFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE)
+                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 572, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(30, 30, 30)
+                .addGap(43, 43, 43)
                 .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 595, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -339,13 +344,14 @@ public class SimulatorFrame extends javax.swing.JFrame {
             toAdd = toAdd.trim();
             toAdd = _controller.addDesignInput(toAdd);
             if (toAdd.contains("invalid")) {
-                JOptionPane.showMessageDialog(this, "Input has invalid characters\nRemember, only integers and spaces may be used");
+                designStatusLabel.setText(toAdd);
             } else {
                 _designInputModel.addElement(toAdd);
                 inputTextField.setText("");
+                designStatusLabel.setText("added: " + toAdd);
+
             }
             inputTextField.requestFocus();
-            _controller.getModel().drawGraph();
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -353,17 +359,21 @@ public class SimulatorFrame extends javax.swing.JFrame {
         int[] indices = wordList.getSelectedIndices();
         if (indices.length > 0) {
             for (int i = 0; i < indices.length; i++) {
-                _controller.removeDesignInput((String) _designInputModel.get(i));
+                String status = _controller.removeDesignInput((String) _designInputModel.get(i));
+
                 _designInputModel.remove(indices[i] - i);
+                if (status.contains("invalid")) {
+                    designStatusLabel.setText(status);
+                } else {
+                    designStatusLabel.setText("removed: " + status);
+                }
             }
             int index = indices[indices.length - 1] - indices.length + 1;
             wordList.setSelectedIndex(index);
             wordList.ensureIndexIsVisible(index);
-            _controller.getModel().drawGraph();
             indices = null;
         }
-        _controller.getModel().reset();
-        
+
 
     }//GEN-LAST:event_removeButtonActionPerformed
 
@@ -394,6 +404,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
     private javax.swing.JPanel designInputPanel;
     private javax.swing.JPanel designPanel;
     private javax.swing.JPanel designResultPanel;
+    private javax.swing.JLabel designStatusLabel;
     private javax.swing.JTextArea designTextArea;
     private javax.swing.JCheckBox finalReportersCheckbox;
     private javax.swing.JButton generateButton;

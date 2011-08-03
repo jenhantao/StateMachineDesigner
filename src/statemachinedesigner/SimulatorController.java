@@ -25,13 +25,9 @@ public class SimulatorController {
         _unexploredStates = new LinkedList<String>();
         _inputSet = new LinkedList<String>();
         _input = "";
-        _model = new DesignTrie(this);
         _designInputs = new HashSet();
+        _gda = new GraphDisplayApplet(this);
 
-    }
-
-    public DesignTrie getModel() {
-        return _model;
     }
 
     /**
@@ -264,40 +260,65 @@ public class SimulatorController {
      * @return
      */
     public String addDesignInput(String s) {
-//        if (!s.substring(s.length() - 1).equals(" ")) {
-//            s = s + " ";//append space to simplify character matching
-//        }
+
         s = s.replace("  ", " ");//remove extra spaces
-        if (s.matches("[[\\d]+[\\s]{1}]+")) {
-            _model.addPath(s);
-            _designInputs.add(s);
-            return s; //valid input
+        String[] tokens = s.split("\\s");
+        if (tokens.length == 3) {
+            int source = -1;
+            int dest = -1;
+            try {
+                source = Integer.parseInt(tokens[0]);
+                dest = Integer.parseInt(tokens[1]);
+            } catch (NumberFormatException e) {
+                return "invalid input: source or destination is not valid";
+            }
+            if (source > -1 && dest > -1) {
+                _gda.createEdge(source, dest, tokens[2]);
+
+                return s; //valid input
+            } else {
+
+                return "invalid input: valid input is 3 integers separated by a space";
+            }
+
         } else {
-            return "invalid characters in input";
+
+            return "invalid input: too many characters in input";
         }
     }
 
-    public void removeDesignInput(String s) {
+    public String removeDesignInput(String s) {
         String[] tokens = s.split("\\s");
-        if (_designInputs.contains(s)) {
-            System.out.println("removed: "+s);
-            _designInputs.remove(s);
+        if (tokens.length == 3) {
+            int source = -1;
+            int dest = -1;
+            try {
+                source = Integer.parseInt(tokens[0]);
+                dest = Integer.parseInt(tokens[1]);
+            } catch (NumberFormatException e) {
+                return "invalid input: source or destination is not valid";
+            }
+            if (source > -1 && dest > -1) {
+                _gda.removeEdge(source, dest);
+
+                return s; //valid input
+            } else {
+
+                return "invalid input: source or destination is not valid";
+            }
+
+        } else {
+
+            return "invalid input: valid input is 3 integers separated by a space";
         }
-//        int i = 0;
-//        while (i < tokens.length && !_designInputs.contains(s.substring(0, s.indexOf(tokens[tokens.length - i - 1])))) {
-//            System.out.println("removing: " + tokens[tokens.length - i - 1]);
-//            _model.removeNode(tokens[tokens.length - i - 1]);
-//            i++;
-//        }
-        _model.reset();
-        _model.getView().initGraph();
-        for (String di:_designInputs) {
-        addDesignInput(di);
-        }
-        _model.drawGraph();
+
     }
+
+    public GraphDisplayApplet getGDA() {
+        return _gda;
+    }
+    private GraphDisplayApplet _gda;
     private HashSet<String> _designInputs;
-    private DesignTrie _model;
     private HashMap<String, String> _deadStates;
     private SimulatorFrame _view;
     private HashMap<String, String> _seenStates;

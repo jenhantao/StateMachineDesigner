@@ -37,23 +37,20 @@ import org.apache.commons.collections15.Transformer;
  */
 public class GraphDisplayApplet extends javax.swing.JApplet {
 
-    private SimulatorController _controller;
     private Graph<Number, PromoterEdge> _graph = null;
     private VisualizationViewer<Number, PromoterEdge> vv = null;
     private AbstractLayout<Number, PromoterEdge> layout = null;
     boolean done;
     private int edgeCount;
     private int vertexCount;
-    private DesignTrie _trie;
+    private SimulatorController _controller;
 
-    GraphDisplayApplet(DesignTrie dt) {
-        _trie = dt;
+    GraphDisplayApplet(SimulatorController sc) {
+        _controller = sc;
     }
 
     @Override
     public void init() {
-        edgeCount = 0;
-        vertexCount = 0;
         //create a graph
         Graph<Number, PromoterEdge> ig = Graphs.<Number, PromoterEdge>synchronizedDirectedGraph(new DirectedSparseMultigraph<Number, PromoterEdge>());
 
@@ -90,36 +87,8 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
         vv.repaint();
     }
 
-    /**
-     * Draws a visual representation of _trie
-     */
-    public void initGraph() {
-        edgeCount = 0;
-        vertexCount = 0;
-        PromoterEdge.reset();
-        ArrayList<Number> vertices = new ArrayList<Number>();
-        vertices.addAll(_graph.getVertices());
-        for (Number n:vertices) {
-            _graph.removeVertex(n);
-        }
-    }
-
-    public void createVertex() {
-        try {
-
-            layout.lock(true);
-            Relaxer relaxer = vv.getModel().getRelaxer();
-            relaxer.pause();
-            if (!_graph.containsVertex(vertexCount)) {
-                _graph.addVertex(vertexCount);
-            }
-            vertexCount++;
-            layout.initialize();
-            relaxer.resume();
-            layout.lock(false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Graph getModel() {
+        return _graph;
     }
 
     public void createEdge(Integer v1, Integer v2, String label) {
@@ -129,27 +98,46 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
             Relaxer relaxer = vv.getModel().getRelaxer();
             relaxer.pause();
             if (_graph.containsVertex(v1) && _graph.containsVertex(v2)) {
-//                _graph.addEdge(edgeCount,v1, v2, EdgeType.DIRECTED);
-                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
-//                edgeCount++;
+                _graph.addEdge(new PromoterEdge(label, v1, v2), v1, v2, EdgeType.DIRECTED);
+            } else if (!_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
+                _graph.addVertex(v1);
+                _graph.addVertex(v2);
+                _graph.addEdge(new PromoterEdge(label, v1, v2), v1, v2, EdgeType.DIRECTED);
+            } else if (_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
+                _graph.addVertex(v2);
+                _graph.addEdge(new PromoterEdge(label, v1, v2), v1, v2, EdgeType.DIRECTED);
+            } else if (!_graph.containsVertex(v1) && _graph.containsVertex(v2)) {
+                _graph.addVertex(v1);
+                _graph.addEdge(new PromoterEdge(label, v1, v2), v1, v2, EdgeType.DIRECTED);
             }
-//            else if (!_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
-//                _graph.addVertex(v1);
-//                _graph.addVertex(v2);
-////                _graph.addEdge(edgeCount, v1, v2);
-//                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
-//                edgeCount++;
-//            } else if (_graph.containsVertex(v1) && !_graph.containsVertex(v2)) {
-//                _graph.addVertex(v2);
-////                _graph.addEdge(edgeCount, v1, v2);
-//                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
-//                edgeCount++;
-//            } else if (!_graph.containsVertex(v1) && _graph.containsVertex(v2)) {
-//                _graph.addVertex(v1);
-////                _graph.addEdge(edgeCount, v1, v2);
-//                _graph.addEdge(new PromoterEdge(label), v1, v2, EdgeType.DIRECTED);
-//                edgeCount++;
-//            }
+
+            layout.initialize();
+            relaxer.resume();
+            layout.lock(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void removeEdge(Integer source, Integer dest) {
+        try {
+
+            layout.lock(true);
+            Relaxer relaxer = vv.getModel().getRelaxer();
+            relaxer.pause();
+            PromoterEdge toDelete = _graph.findEdge(source, dest);
+            if (toDelete != null) {
+                _graph.removeEdge(toDelete);
+
+                if (_graph.getNeighborCount(dest) < 1) {
+                    _graph.removeVertex(dest);
+                }
+                if (_graph.getNeighborCount(source) < 1) {
+                    _graph.removeVertex(source);
+                }
+            }
 
             layout.initialize();
             relaxer.resume();
