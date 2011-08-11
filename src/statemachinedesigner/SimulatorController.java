@@ -4,6 +4,7 @@
  */
 package statemachinedesigner;
 
+import edu.uci.ics.jung.graph.Graph;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +27,9 @@ public class SimulatorController {
         _inputSet = new LinkedList<String>();
         _input = "";
         _designInputs = new HashSet();
-        _gda = new GraphDisplayApplet(this);
+        _useRecombinase = true;
+        _useInvertase = false;
+
 
     }
 
@@ -38,6 +41,7 @@ public class SimulatorController {
     public String startSimulation(String text) {
         String designInput = text.replaceAll("\\n", " ").toUpperCase().trim() + " ";//new lines essentially denote spaces, add space at end by convention
         String[] tokens = designInput.split("\\s");
+        boolean containsReporter = false;
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].matches("[pP]{1}[\\d]+[']?")) {
 //                System.out.println(text + " contains a promoter site: " + tokens[i]);
@@ -49,10 +53,14 @@ public class SimulatorController {
 //                System.out.println(text + " contains a terminator region: " + tokens[i]);
             } else if (tokens[i].matches("[rR]{1}[\\d]+[']?")) {
 //                System.out.println(text + " contains a reporter coding region: " + tokens[i]);
+                containsReporter = true;
             } else {
 //                System.out.println("construct contains invalid component: " + tokens[i]);
                 return "construct contains invalid component: " + tokens[i];
             }
+        }
+        if (!containsReporter) {
+            return "no reporter found in construct";
         }
         _inputSet = new LinkedList<String>();
         _seenStates = new HashMap<String, String>();
@@ -152,8 +160,15 @@ public class SimulatorController {
                     }
                 }
             }
-
-            String newState = activateInvertase(activatedInvertase);
+            String newState = null;
+            if (_useInvertase) {
+                newState = activateInvertase(activatedInvertase);
+            } else if (_useRecombinase) {
+                newState = activateRecombinase(activatedInvertase);
+            } else {
+                _view.setTestStatus("Status: Can't run test. Must use either excision or inversion");
+                return;
+            }
             if (_view.isShowIntermediate()) {
                 System.out.println("current state:" + _currentState);
                 System.out.println("inputs used:" + _input + " " + _promoterNumber);
@@ -182,6 +197,29 @@ public class SimulatorController {
 
             }
         }
+
+    }
+
+    private String activateRecombinase(ArrayList<Integer> activeSites) {
+        String newState = _currentState;
+        for (int recombinaseNumber : activeSites) {
+            String numberString = Integer.toString(recombinaseNumber);
+            String temp = "";
+            for (int i = 0; i < numberString.length(); i++) {
+                temp = temp + "[" + numberString.substring(i, i + 1) + "]{1}";
+            }
+            Pattern p = Pattern.compile("[iI]{1}" + temp + "[^']{1}");
+            Matcher m = p.matcher(newState);
+            ArrayList<Integer> starts = new ArrayList();
+            while (m.find()) {
+                starts.add(m.start());
+            }
+            for (int i = 0; i < starts.size() - 1; i++) {
+                //this loop performs the excisions
+                newState = newState.substring(0, starts.get(i)) + newState.substring(starts.get(i + 1));
+            }
+        }
+        return newState;
 
     }
 
@@ -254,69 +292,142 @@ public class SimulatorController {
 
     }
 
-    /**
-     * validates words that need to be incorporated into the design
-     * returns either a blank string or a valid design input composed of integers and spaces only
-     * @return
-     */
-    public String addDesignInput(String s) {
-
-        s = s.replace("  ", " ");//remove extra spaces
-        String[] tokens = s.split("\\s");
-        if (tokens.length == 3) {
-            int source = -1;
-            int dest = -1;
-            try {
-                source = Integer.parseInt(tokens[0]);
-                dest = Integer.parseInt(tokens[1]);
-            } catch (NumberFormatException e) {
-                return "invalid input: source or destination is not valid";
-            }
-            if (source > -1 && dest > -1) {
-                _gda.createEdge(source, dest, tokens[2]);
-
-                return s; //valid input
-            } else {
-
-                return "invalid input: valid input is 3 integers separated by a space";
-            }
-
+    public void changeInvertaseUse() {
+        if (_useInvertase) {
+            _useInvertase = false;
         } else {
-
-            return "invalid input: too many characters in input";
+            _useInvertase = true;
         }
     }
 
-    public String removeDesignInput(String s) {
-        String[] tokens = s.split("\\s");
-        if (tokens.length == 3) {
-            int source = -1;
-            int dest = -1;
-            try {
-                source = Integer.parseInt(tokens[0]);
-                dest = Integer.parseInt(tokens[1]);
-            } catch (NumberFormatException e) {
-                return "invalid input: source or destination is not valid";
-            }
-            if (source > -1 && dest > -1) {
-                _gda.removeEdge(source, dest);
-
-                return s; //valid input
-            } else {
-
-                return "invalid input: source or destination is not valid";
-            }
-
+    public void changeRecombinaseUse() {
+        if (_useRecombinase) {
+            _useRecombinase = false;
         } else {
+            _useRecombinase = true;
+        }
+    }
 
-            return "invalid input: valid input is 3 integers separated by a space";
+    public String generateDesign(Graph g) {
+        _design="";
+        _undesignedStates = new LinkedList<Integer>();
+        _touchedDesignStates = new LinkedList<Integer>();
+        ArrayList<Integer> vertices = new ArrayList<Integer>();
+
+        vertices.addAll(g.getVertices());
+
+        for (Integer i : vertices) {
+            if (g.getNeighborCount(i) == 0) {
+                g.removeVertex(i);
+            }
+        }
+        vertices.clear();
+        vertices.addAll(g.getVertices());
+
+        //at this point only vertices that have a neighbor should remain
+        if (!g.containsVertex(0)) {
+            return "error: design must include vertex 0, the initial state";
+        }
+//        for (Integer i : vertices) {
+//            _touchedDesignStates.add(i);
+//        }
+//        for (Integer i : vertices) {
+//            findParents(g, i);
+//        }
+        _touchedDesignStates.add(0);
+        _undesignedStates.add(0);
+        while (!_undesignedStates.isEmpty()) {
+            _currentVertex = _undesignedStates.poll();
+            _design=_design+generateDesignHelper(g);
         }
 
+
+
+        return null;
     }
 
-    public GraphDisplayApplet getGDA() {
-        return _gda;
+    private String generateDesignHelper(Graph g) {
+System.out.println(_currentVertex);
+        String toAdd="X X' P"+_currentVertex;
+        
+        
+//        System.out.println("touched states");
+//        for (Integer i : _touchedDesignStates) {
+//            System.out.print(i + ", ");
+//        }
+//        System.out.println();
+        ArrayList<Integer> neighbors = new ArrayList<Integer>();
+        neighbors.addAll(g.getNeighbors(_currentVertex));
+//        System.out.println(_currentVertex + " has neighbors: ");
+//        for (Integer i : neighbors) {
+//            System.out.print(i + ", ");
+//        }
+//        System.out.println();
+        ArrayList<Integer> parents = findParents(g, _currentVertex);
+//        System.out.println(_currentVertex + " has parents: ");
+        for (Integer i : parents) {
+//            System.out.print(i + ", ");
+            PromoterEdge edge =(PromoterEdge) g.findEdge(i, _currentVertex);
+            if (edge!=null) {
+            toAdd=flankElementWith(toAdd, "P"+edge.getWeight(),"I"+edge.getWeight());
+            }
+            if (i!=0) {
+                
+            toAdd=toAdd+"X X'";
+            }
+            
+            neighbors.remove(i);
+        }
+        
+        for (Integer i:neighbors) {
+            if(!_touchedDesignStates.contains(i)) {
+                _touchedDesignStates.add(i);
+                _undesignedStates.add(i);
+            }
+        }
+
+
+        return null;
     }
+
+    private ArrayList<Integer> findParents(Graph g, Integer vertex) {
+
+        ArrayList<Integer> parents = new ArrayList<Integer>();
+        int vertexIndex = _touchedDesignStates.indexOf(vertex);
+        if (vertexIndex > 0) {
+            for (int i = 0; i < vertexIndex; i++) {
+                if (g.getNeighbors(_touchedDesignStates.get(i)).contains(vertex)) {
+                    parents.add(_touchedDesignStates.get(i));
+                }
+            }
+        }
+
+        return parents;
+    }
+
+    public String flankElementWith(String design, String target, String flanker) {
+        int targetIndex = design.indexOf(target);
+        String toReturn = design.substring(0, targetIndex) + " " + flanker + " " + design.substring(targetIndex, targetIndex + target.length())
+                + " " + flanker + " " + design.substring(targetIndex + target.length());
+
+
+
+
+        return toReturn;
+
+    }
+    private class StateMachineNode {
+        String _module;
+        private StateMachineNode(String s) {
+            _module=s;
+        }
+    }
+    private ArrayList<StateMachineNode> _nodes;
+    private int _promoterCount;
+    private String _design;
+    private int _currentVertex;
+    private LinkedList<Integer> _touchedDesignStates;
+    private LinkedList<Integer> _undesignedStates;
     private GraphDisplayApplet _gda;
     private HashSet<String> _designInputs;
     private HashMap<String, String> _deadStates;
@@ -328,4 +439,6 @@ public class SimulatorController {
     private String _input;
     private LinkedList<String> _inputSet;
     private int _promoterNumber;
+    private boolean _useInvertase;
+    private boolean _useRecombinase;
 }

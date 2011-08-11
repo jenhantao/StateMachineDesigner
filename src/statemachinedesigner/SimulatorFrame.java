@@ -11,8 +11,10 @@
 package statemachinedesigner;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -30,8 +32,10 @@ public class SimulatorFrame extends javax.swing.JFrame {
 //        EditorApplet editPanel = new EditorApplet(_controller);
 //              designInputPanel.setLayout(new BorderLayout());
 //        designInputPanel.add(editPanel.getContentPane(), BorderLayout.CENTER);
-        _gda = _controller.getGDA();
+//        _gda = _controller.getGDA();
+        _gda = new GraphDisplayApplet();
         _gda.init();
+
         designInputPanel.setLayout(new BorderLayout());
         designInputPanel.add(_gda.getContentPane(), BorderLayout.CENTER);
 
@@ -51,7 +55,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         designPanel = new javax.swing.JPanel();
         designResultPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        designResultArea = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
         inputTextField = new javax.swing.JTextField();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -62,6 +66,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         generateButton = new javax.swing.JButton();
         generateButton1 = new javax.swing.JButton();
         designStatusLabel = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         testPanel = new javax.swing.JPanel();
         testInputScrollPane = new javax.swing.JScrollPane();
         designTextArea = new javax.swing.JTextArea();
@@ -73,14 +78,16 @@ public class SimulatorFrame extends javax.swing.JFrame {
         intermediateStepsCheckbox = new javax.swing.JCheckBox();
         finalReportersCheckbox = new javax.swing.JCheckBox();
         statusLabel = new javax.swing.JLabel();
+        useRecombinaseCheckBox = new javax.swing.JCheckBox();
+        useInvertaseCheckBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         designResultPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        designResultArea.setColumns(20);
+        designResultArea.setRows(5);
+        jScrollPane1.setViewportView(designResultArea);
 
         jLabel3.setText("Result:");
 
@@ -88,7 +95,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         designResultPanel.setLayout(designResultPanelLayout);
         designResultPanelLayout.setHorizontalGroup(
             designResultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 582, Short.MAX_VALUE)
             .addGroup(designResultPanelLayout.createSequentialGroup()
                 .addComponent(jLabel3)
                 .addContainerGap())
@@ -122,11 +129,11 @@ public class SimulatorFrame extends javax.swing.JFrame {
         designInputPanel.setLayout(designInputPanelLayout);
         designInputPanelLayout.setHorizontalGroup(
             designInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 536, Short.MAX_VALUE)
+            .addGap(0, 582, Short.MAX_VALUE)
         );
         designInputPanelLayout.setVerticalGroup(
             designInputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 223, Short.MAX_VALUE)
+            .addGap(0, 217, Short.MAX_VALUE)
         );
 
         addButton.setText("Add");
@@ -163,6 +170,8 @@ public class SimulatorFrame extends javax.swing.JFrame {
 
         designStatusLabel.setText(" ");
 
+        jLabel4.setText("Status: ");
+
         javax.swing.GroupLayout designPanelLayout = new javax.swing.GroupLayout(designPanel);
         designPanel.setLayout(designPanelLayout);
         designPanelLayout.setHorizontalGroup(
@@ -170,20 +179,23 @@ public class SimulatorFrame extends javax.swing.JFrame {
             .addGroup(designPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(designInputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(designResultPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(designPanelLayout.createSequentialGroup()
                         .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
-                            .addComponent(inputTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 487, Short.MAX_VALUE)
+                            .addComponent(inputTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 487, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(generateButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(generateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(removeButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
+                            .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(9, 9, 9))
+                    .addGroup(designPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(generateButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
-                            .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(generateButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(removeButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
-                                .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE))))
-                    .addComponent(designStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
+                        .addComponent(designStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE))
+                    .addComponent(designInputPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         designPanelLayout.setVerticalGroup(
@@ -192,27 +204,29 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(designPanelLayout.createSequentialGroup()
-                        .addComponent(inputTextField)
-                        .addGap(3, 3, 3))
+                        .addComponent(inputTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                        .addGap(3, 3, 3)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE))
                     .addGroup(designPanelLayout.createSequentialGroup()
                         .addComponent(addButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, designPanelLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(removeButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(generateButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(generateButton1))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE))
+                        .addComponent(generateButton1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(designStatusLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(designPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(designStatusLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(designInputPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(designResultPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
+
+        designPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {designStatusLabel, jLabel4});
 
         mainTabbedPane.addTab("Design", designPanel);
 
@@ -244,6 +258,21 @@ public class SimulatorFrame extends javax.swing.JFrame {
         statusLabel.setText("Status: waiting...");
         statusLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        useRecombinaseCheckBox.setSelected(true);
+        useRecombinaseCheckBox.setText("Simulate Excision");
+        useRecombinaseCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useRecombinaseCheckBoxActionPerformed(evt);
+            }
+        });
+
+        useInvertaseCheckBox.setText("Simulate Inversion");
+        useInvertaseCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useInvertaseCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout testPanelLayout = new javax.swing.GroupLayout(testPanel);
         testPanel.setLayout(testPanelLayout);
         testPanelLayout.setHorizontalGroup(
@@ -257,18 +286,21 @@ public class SimulatorFrame extends javax.swing.JFrame {
                             .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
-                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)))
+                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
+                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
+                            .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)))
                     .addGroup(testPanelLayout.createSequentialGroup()
                         .addGap(74, 74, 74)
-                        .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, testPanelLayout.createSequentialGroup()
-                                .addComponent(finalReportersCheckbox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(intermediateStepsCheckbox)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(runSimulationButton)))
+                        .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(useRecombinaseCheckBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(finalReportersCheckbox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(testPanelLayout.createSequentialGroup()
+                                .addComponent(intermediateStepsCheckbox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 58, Short.MAX_VALUE)
+                                .addComponent(runSimulationButton))
+                            .addComponent(useInvertaseCheckBox))))
                 .addContainerGap())
         );
         testPanelLayout.setVerticalGroup(
@@ -282,8 +314,12 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(testResultsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(statusLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(useRecombinaseCheckBox)
+                    .addComponent(useInvertaseCheckBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(runSimulationButton)
@@ -300,19 +336,23 @@ public class SimulatorFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 572, Short.MAX_VALUE)
+                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(43, 43, 43)
-                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 595, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 607, Short.MAX_VALUE)
+                .addGap(73, 73, 73))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    public GraphDisplayApplet getGDA() {
+        return _gda;
+    }
 
     public boolean isFinalReporter() {
         return finalReportersCheckbox.isSelected();
@@ -342,7 +382,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         String toAdd = inputTextField.getText();
         if (toAdd != null) {
             toAdd = toAdd.trim();
-            toAdd = _controller.addDesignInput(toAdd);
+            toAdd = addDesignInput(toAdd);
             if (toAdd.contains("invalid")) {
                 designStatusLabel.setText(toAdd);
             } else {
@@ -359,7 +399,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
         int[] indices = wordList.getSelectedIndices();
         if (indices.length > 0) {
             for (int i = 0; i < indices.length; i++) {
-                String status = _controller.removeDesignInput((String) _designInputModel.get(i));
+                String status = removeDesignInput((String) _designInputModel.get(i));
 
                 _designInputModel.remove(indices[i] - i);
                 if (status.contains("invalid")) {
@@ -378,12 +418,104 @@ public class SimulatorFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
-        // TODO add your handling code here:
+        String design = _controller.generateDesign(_gda.getModel());
+        if (design != null) {
+            if (design.contains("error")) {
+                designStatusLabel.setText(design);
+            } else {
+                designResultArea.setText(design);
+            }
+        }
     }//GEN-LAST:event_generateButtonActionPerformed
-
     private void generateButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButton1ActionPerformed
-        System.out.println("abcdefg".substring("abcdefg".indexOf("f")));
+        _gda.createEdge(0, 1, "0");
+        _gda.createEdge(1, 3, "2");
+        _gda.createEdge(0, 2, "1");
+        _gda.createEdge(2, 3, "3");
+        _gda.createEdge(3, 4, "4");
+        _gda.createEdge(3, 5, "5");
+        System.out.println("there should be " + _gda.getModel().getVertexCount() + " nodes");
+
+
     }//GEN-LAST:event_generateButton1ActionPerformed
+
+private void useRecombinaseCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useRecombinaseCheckBoxActionPerformed
+    _controller.changeRecombinaseUse();
+}//GEN-LAST:event_useRecombinaseCheckBoxActionPerformed
+
+private void useInvertaseCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useInvertaseCheckBoxActionPerformed
+    _controller.changeInvertaseUse();
+}//GEN-LAST:event_useInvertaseCheckBoxActionPerformed
+    public void setTestStatus(String s) {
+        statusLabel.setText(s);
+    }
+
+    public void setDesignStatus(String s) {
+        designStatusLabel.setText(s);
+    }
+
+    /**
+     * validates words that need to be incorporated into the design
+     * returns either a blank string or a valid design input composed of integers and spaces only
+     * @return
+     */
+    public String addDesignInput(String s) {
+
+        s = s.replace("  ", " ");//remove extra spaces
+        String[] tokens = s.split("\\s");
+        if (tokens.length == 3) {
+            int source = -1;
+            int dest = -1;
+            try {
+                source = Integer.parseInt(tokens[0]);
+                dest = Integer.parseInt(tokens[1]);
+            } catch (NumberFormatException e) {
+                setDesignStatus("Error- source or destination is not valid");
+                return "invalid input: source or destination is not valid";
+            }
+            if (source > -1 && dest > -1) {
+                _gda.createEdge(source, dest, tokens[2]);
+
+                return s; //valid input
+            } else {
+                setDesignStatus("invalid input: valid input is 3 integers separated by a space");
+                return "invalid input: valid input is 3 integers separated by a space";
+            }
+
+        } else {
+            setDesignStatus("invalid input: too many characters in input");
+            return "invalid input: too many characters in input";
+        }
+    }
+
+    public String removeDesignInput(String s) {
+        String[] tokens = s.split("\\s");
+        if (tokens.length == 3) {
+            int source = -1;
+            int dest = -1;
+            try {
+                source = Integer.parseInt(tokens[0]);
+                dest = Integer.parseInt(tokens[1]);
+            } catch (NumberFormatException e) {
+                setDesignStatus("invalid input: source or destination is not valid");
+                return "invalid input: source or destination is not valid";
+            }
+            if (source > -1 && dest > -1) {
+                _gda.removeEdge(source, dest);
+
+                return s; //valid input
+            } else {
+                setDesignStatus("invalid input: source or destination is not valid");
+                return "invalid input: source or destination is not valid";
+            }
+
+        } else {
+            setDesignStatus("invalid input: valid input is 3 integers separated by a space");
+
+            return "invalid input: valid input is 3 integers separated by a space";
+        }
+
+    }
 
     /**
      * @param args the command line arguments
@@ -403,6 +535,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
     private javax.swing.JButton addButton;
     private javax.swing.JPanel designInputPanel;
     private javax.swing.JPanel designPanel;
+    private javax.swing.JTextArea designResultArea;
     private javax.swing.JPanel designResultPanel;
     private javax.swing.JLabel designStatusLabel;
     private javax.swing.JTextArea designTextArea;
@@ -414,9 +547,9 @@ public class SimulatorFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTabbedPane mainTabbedPane;
     private javax.swing.JButton removeButton;
     private javax.swing.JTextArea resultsTextArea;
@@ -425,6 +558,8 @@ public class SimulatorFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane testInputScrollPane;
     private javax.swing.JPanel testPanel;
     private javax.swing.JScrollPane testResultsScrollPane;
+    private javax.swing.JCheckBox useInvertaseCheckBox;
+    private javax.swing.JCheckBox useRecombinaseCheckBox;
     private javax.swing.JList wordList;
     // End of variables declaration//GEN-END:variables
 }

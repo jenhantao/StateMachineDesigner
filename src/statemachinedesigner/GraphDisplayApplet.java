@@ -10,7 +10,14 @@
 package statemachinedesigner;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.DAGLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
+import edu.uci.ics.jung.algorithms.layout.SpringLayout;
+import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
+import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
@@ -43,11 +50,6 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
     boolean done;
     private int edgeCount;
     private int vertexCount;
-    private SimulatorController _controller;
-
-    GraphDisplayApplet(SimulatorController sc) {
-        _controller = sc;
-    }
 
     @Override
     public void init() {
@@ -58,7 +60,7 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
 
         this._graph = og;
         //create a graphdraw
-        layout = new FRLayout2<Number, PromoterEdge>(_graph);
+        layout = new SpringLayout<Number,PromoterEdge>(_graph);
 //scale this to the size of the design input panel
         vv = new VisualizationViewer<Number, PromoterEdge>(layout, new Dimension(600, 250));
         getContentPane().setLayout(new BorderLayout());
@@ -77,6 +79,7 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
 
 
         getContentPane().add(vv);
+        _graph.addVertex(0);
     }
 
     @Override
