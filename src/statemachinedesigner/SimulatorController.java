@@ -309,7 +309,8 @@ public class SimulatorController {
     }
 
     public String generateDesign(Graph g) {
-        _design="";
+        _design = "";
+        _nodes = new ArrayList<StateMachineNode>();
         _undesignedStates = new LinkedList<Integer>();
         _touchedDesignStates = new LinkedList<Integer>();
         ArrayList<Integer> vertices = new ArrayList<Integer>();
@@ -328,62 +329,50 @@ public class SimulatorController {
         if (!g.containsVertex(0)) {
             return "error: design must include vertex 0, the initial state";
         }
-//        for (Integer i : vertices) {
-//            _touchedDesignStates.add(i);
-//        }
-//        for (Integer i : vertices) {
-//            findParents(g, i);
-//        }
+
         _touchedDesignStates.add(0);
         _undesignedStates.add(0);
         while (!_undesignedStates.isEmpty()) {
             _currentVertex = _undesignedStates.poll();
-            _design=_design+generateDesignHelper(g);
+            _design = _design + generateDesignHelper(g);
         }
-
+        System.out.println("===RESULTS===");
+        for (StateMachineNode smn : _nodes) {
+            System.out.println("Key"+smn._key);
+            for (Integer i:smn._children) {
+                System.out.println(i);
+            }
+        }
 
 
         return null;
     }
 
     private String generateDesignHelper(Graph g) {
-System.out.println(_currentVertex);
-        String toAdd="X X' P"+_currentVertex;
-        
-        
-//        System.out.println("touched states");
-//        for (Integer i : _touchedDesignStates) {
-//            System.out.print(i + ", ");
-//        }
-//        System.out.println();
+        String toAdd = "X X' P" + _currentVertex;
+
         ArrayList<Integer> neighbors = new ArrayList<Integer>();
         neighbors.addAll(g.getNeighbors(_currentVertex));
-//        System.out.println(_currentVertex + " has neighbors: ");
-//        for (Integer i : neighbors) {
-//            System.out.print(i + ", ");
-//        }
-//        System.out.println();
+        System.out.println(_currentVertex + " has neighbors: ");
+        for (Integer i : neighbors) {
+            System.out.print(i + ", ");
+        }
+        System.out.println();
         ArrayList<Integer> parents = findParents(g, _currentVertex);
-//        System.out.println(_currentVertex + " has parents: ");
+        System.out.println(_currentVertex + " has parents: ");
         for (Integer i : parents) {
-//            System.out.print(i + ", ");
-            PromoterEdge edge =(PromoterEdge) g.findEdge(i, _currentVertex);
-            if (edge!=null) {
-            toAdd=flankElementWith(toAdd, "P"+edge.getWeight(),"I"+edge.getWeight());
-            }
-            if (i!=0) {
-                
-            toAdd=toAdd+"X X'";
-            }
-            
+            System.out.print(i + ", ");
             neighbors.remove(i);
         }
-        
-        for (Integer i:neighbors) {
-            if(!_touchedDesignStates.contains(i)) {
+        System.out.println();
+        for (Integer i : neighbors) {
+            if (!_touchedDesignStates.contains(i)) {
                 _touchedDesignStates.add(i);
                 _undesignedStates.add(i);
             }
+//            PromoterEdge edge = (PromoterEdge) g.findEdge(_currentVertex, i);
+//            _nodes.add(new StateMachineNode(Integer.parseInt(edge.getWeight()), parents, neighbors));
+
         }
 
 
@@ -416,10 +405,20 @@ System.out.println(_currentVertex);
         return toReturn;
 
     }
+
     private class StateMachineNode {
+
         String _module;
-        private StateMachineNode(String s) {
-            _module=s;
+        ArrayList<Integer> _parents;
+        ArrayList<Integer> _children;
+        Integer _key;
+
+        private StateMachineNode(Integer key, ArrayList<Integer> parents, ArrayList<Integer> children) {
+            _module = "";
+            _parents = parents;
+            _children = children;
+            _key = key;
+
         }
     }
     private ArrayList<StateMachineNode> _nodes;
