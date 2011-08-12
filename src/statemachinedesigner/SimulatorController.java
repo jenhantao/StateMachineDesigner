@@ -7,6 +7,7 @@ package statemachinedesigner;
 import edu.uci.ics.jung.graph.Graph;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
  *
  * @author Jenhan Tao
  */
-public class SimulatorController {
+public class SimulatorController implements Comparator {
 
     SimulatorController(SimulatorFrame aThis) {
         _view = aThis;
@@ -214,9 +215,17 @@ public class SimulatorController {
             while (m.find()) {
                 starts.add(m.start());
             }
+            int lengthDifference=0;
             for (int i = 0; i < starts.size() - 1; i++) {
                 //this loop performs the excisions
-                newState = newState.substring(0, starts.get(i)) + newState.substring(starts.get(i + 1));
+                int originalLength = newState.length();
+                newState = newState.substring(0, starts.get(i)-lengthDifference) + newState.substring(starts.get(i + 1)-lengthDifference);
+                 lengthDifference = lengthDifference+originalLength - newState.length();
+//                ArrayList<Integer> newStarts =new ArrayList<Integer>();
+//                for (int j =0; j<starts.size();j++) {
+//                    
+//                    
+//                }
             }
         }
         return newState;
@@ -309,126 +318,182 @@ public class SimulatorController {
     }
 
     public String generateDesign(Graph g) {
-        _design = "";
+        _graph = g;
         _nodes = new ArrayList<StateMachineNode>();
-        _undesignedStates = new LinkedList<Integer>();
-        _touchedDesignStates = new LinkedList<Integer>();
+//        _undesignedStates = new LinkedList<Integer>();
+//        _touchedDesignStates = new LinkedList<Integer>();
+        _edgeSet = new ArrayList<PromoterEdge>();
+        _edgeSet.addAll(_graph.getEdges());
+        _recombinaseCount = 0;
+        _reporterCount = 0;
+        java.util.Collections.sort(_edgeSet, this);
         ArrayList<Integer> vertices = new ArrayList<Integer>();
 
-        vertices.addAll(g.getVertices());
+        vertices.addAll(_graph.getVertices());
 
         for (Integer i : vertices) {
-            if (g.getNeighborCount(i) == 0) {
-                g.removeVertex(i);
+            if (_graph.getNeighborCount(i) == 0) {
+                _graph.removeVertex(i);
             }
         }
         vertices.clear();
-        vertices.addAll(g.getVertices());
+        vertices.addAll(_graph.getVertices());
 
         //at this point only vertices that have a neighbor should remain
-        if (!g.containsVertex(0)) {
+        if (!_graph.containsVertex(0)) {
             return "error: design must include vertex 0, the initial state";
         }
-
-        _touchedDesignStates.add(0);
-        _undesignedStates.add(0);
-        while (!_undesignedStates.isEmpty()) {
-            _currentVertex = _undesignedStates.poll();
-            _design = _design + generateDesignHelper(g);
-        }
-        System.out.println("===RESULTS===");
-        for (StateMachineNode smn : _nodes) {
-            System.out.println("Key"+smn._key);
-            for (Integer i:smn._children) {
-                System.out.println(i);
-            }
-        }
-
-
-        return null;
-    }
-
-    private String generateDesignHelper(Graph g) {
-        String toAdd = "X X' P" + _currentVertex;
-
-        ArrayList<Integer> neighbors = new ArrayList<Integer>();
-        neighbors.addAll(g.getNeighbors(_currentVertex));
-        System.out.println(_currentVertex + " has neighbors: ");
-        for (Integer i : neighbors) {
-            System.out.print(i + ", ");
-        }
-        System.out.println();
-        ArrayList<Integer> parents = findParents(g, _currentVertex);
-        System.out.println(_currentVertex + " has parents: ");
-        for (Integer i : parents) {
-            System.out.print(i + ", ");
-            neighbors.remove(i);
-        }
-        System.out.println();
-        for (Integer i : neighbors) {
-            if (!_touchedDesignStates.contains(i)) {
-                _touchedDesignStates.add(i);
-                _undesignedStates.add(i);
-            }
-//            PromoterEdge edge = (PromoterEdge) g.findEdge(_currentVertex, i);
-//            _nodes.add(new StateMachineNode(Integer.parseInt(edge.getWeight()), parents, neighbors));
-
-        }
-
-
-        return null;
-    }
-
-    private ArrayList<Integer> findParents(Graph g, Integer vertex) {
-
-        ArrayList<Integer> parents = new ArrayList<Integer>();
-        int vertexIndex = _touchedDesignStates.indexOf(vertex);
-        if (vertexIndex > 0) {
-            for (int i = 0; i < vertexIndex; i++) {
-                if (g.getNeighbors(_touchedDesignStates.get(i)).contains(vertex)) {
-                    parents.add(_touchedDesignStates.get(i));
+        for (PromoterEdge edge : _edgeSet) {
+            StateMachineNode newNode = new StateMachineNode(edge, Integer.parseInt(edge.getWeight()));
+            _nodes.add(newNode);
+            ArrayList<Integer> neighbors = new ArrayList<Integer>();
+            neighbors.addAll(_graph.getNeighbors(edge.dest));
+            neighbors.remove(edge.source);
+            for (Integer i : neighbors) {
+                if (i > edge.dest) {
+                    PromoterEdge pe = (PromoterEdge) _graph.findEdge(edge.dest, i);
+                    newNode._children.add(Integer.parseInt(pe.getWeight()));
                 }
             }
+
+        }
+        for (StateMachineNode smn : _nodes) {
+            generateDesignHelper(smn);
+        }
+        String toReturn = "";
+        for (StateMachineNode smn : _nodes) {
+            toReturn = toReturn + smn._module + "\n";
+        }
+        return toReturn;
+    }
+
+    private void generateDesignHelper(StateMachineNode smn) {
+        String module = smn._module;
+        ArrayList<StateMachineNode> children = smn.getChildren();
+        ArrayList<StateMachineNode> siblings = smn.getSiblings();
+
+        //add self deacting invertase sites
+        module = module + " @" + _recombinaseCount;
+        if (!children.isEmpty()) {
+            module = flankElementWith(module, "P" + smn._promoter, "I" + _recombinaseCount);
+        }
+        for (StateMachineNode sib : siblings) {
+            addDeactivatingSites(sib, _recombinaseCount);
+        }
+        _recombinaseCount++;
+        //link with other modules
+        for (int i = 0; i < children.size(); i++) {
+
+            module = module + " @" + _recombinaseCount;
+            addActivatingSites(children.get(i), _recombinaseCount);
+            _recombinaseCount++;
         }
 
-        return parents;
+        //add reporters
+        if (children.isEmpty()) {
+            module = module + " R" + _reporterCount;
+            _reporterCount++;
+        }
+        module = module + " X X'";
+        smn._module = module;
+
+
+    }
+
+    private void addActivatingSites(StateMachineNode smn, int i) {
+        String module = smn._module;
+        String s = "I" + i;
+        module = module.substring(0, module.indexOf("X X'") + 4) + flankElementWith(module.substring(module.indexOf("X X'") + 4), "X X'", s);
+        smn._module = module;
+
+    }
+
+    private void addDeactivatingSites(StateMachineNode smn, int i) {
+        String module = smn._module;
+        String s = "I" + i;
+        module = flankElementWith(module, "P" + smn._promoter, s);
+        smn._module = module;
     }
 
     public String flankElementWith(String design, String target, String flanker) {
         int targetIndex = design.indexOf(target);
-        String toReturn = design.substring(0, targetIndex) + " " + flanker + " " + design.substring(targetIndex, targetIndex + target.length())
-                + " " + flanker + " " + design.substring(targetIndex + target.length());
-
-
-
-
+        String toReturn = design.substring(0, targetIndex) + flanker + " " + design.substring(targetIndex, targetIndex + target.length())
+                + " " + flanker + design.substring(targetIndex + target.length());
         return toReturn;
 
     }
 
+    public int compare(Object t, Object t1) {
+        PromoterEdge v1 = (PromoterEdge) t;
+        PromoterEdge v2 = (PromoterEdge) t1;
+        if (v1.source.equals(v2.source) && v1.dest.equals(v2.dest) && v1.getWeight().equals(v2.getWeight())) {
+            return 0;
+        } else {
+            if (v1.source > v2.source) {
+                return 1;
+            } else if (v2.source > v1.source) {
+                return -1;
+            } else {
+                if (v1.dest > v2.dest) {
+                    return 1;
+                } else if (v2.dest > v1.dest) {
+                    return -1;
+                }
+            }
+
+        }
+        return 0;
+    }
+
     private class StateMachineNode {
 
+        PromoterEdge _pe;
+        Integer _promoter;
+        Integer _originVertex;
         String _module;
         ArrayList<Integer> _parents;
         ArrayList<Integer> _children;
-        Integer _key;
 
-        private StateMachineNode(Integer key, ArrayList<Integer> parents, ArrayList<Integer> children) {
-            _module = "";
-            _parents = parents;
-            _children = children;
-            _key = key;
+        private StateMachineNode(PromoterEdge pe, Integer index) {
+            _pe = pe;
+            _promoter = index;
+            _module = "X X' P" + _promoter;
+            if (pe.source != 0) {//exception for starting arcs
+                _module = _module + " X X'";
+            }
+            _children = new ArrayList<Integer>();
 
         }
+
+        private ArrayList<StateMachineNode> getChildren() {
+            ArrayList<StateMachineNode> toReturn = new ArrayList<StateMachineNode>();
+            for (StateMachineNode smn : _nodes) {
+                if (smn._pe.source == this._pe.dest && this._children.contains(smn._promoter)) {
+                    toReturn.add(smn);
+                }
+            }
+            toReturn.remove(this);
+            return toReturn;
+        }
+
+        private ArrayList<StateMachineNode> getSiblings() {
+            ArrayList<StateMachineNode> toReturn = new ArrayList<StateMachineNode>();
+            for (StateMachineNode smn : _nodes) {
+                if (this._pe.source == smn._pe.source) {
+                    toReturn.add(smn);
+                }
+            }
+            toReturn.remove(this);
+            return toReturn;
+        }
     }
+    private Graph _graph;
+    private ArrayList<PromoterEdge> _edgeSet;
+    private HashSet _designInputs;
     private ArrayList<StateMachineNode> _nodes;
-    private int _promoterCount;
-    private String _design;
-    private int _currentVertex;
-    private LinkedList<Integer> _touchedDesignStates;
-    private LinkedList<Integer> _undesignedStates;
+    private int _recombinaseCount;
+    private int _reporterCount;
     private GraphDisplayApplet _gda;
-    private HashSet<String> _designInputs;
     private HashMap<String, String> _deadStates;
     private SimulatorFrame _view;
     private HashMap<String, String> _seenStates;

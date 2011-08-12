@@ -434,7 +434,6 @@ public class SimulatorFrame extends javax.swing.JFrame {
         _gda.createEdge(2, 3, "3");
         _gda.createEdge(3, 4, "4");
         _gda.createEdge(3, 5, "5");
-        System.out.println("there should be " + _gda.getModel().getVertexCount() + " nodes");
 
 
     }//GEN-LAST:event_generateButton1ActionPerformed

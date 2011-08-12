@@ -8,8 +8,8 @@ package statemachinedesigner;
  */
   public class PromoterEdge {
         String promoterNumber;   // should be private for good practice
-        Number source;
-        Number dest;
+        Integer source;
+        Integer dest;
         int id=0;
 
         public PromoterEdge(String promoterNumber, int source, int dest) {
