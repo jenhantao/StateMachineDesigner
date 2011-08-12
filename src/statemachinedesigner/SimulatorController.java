@@ -111,13 +111,25 @@ public class SimulatorController implements Comparator {
         String designString = s.replaceAll("\\n", " ").trim();//new lines essentially denote spaces
         String[] tokens = designString.split("\\s");
         ArrayList<Integer> toReturn = new ArrayList<Integer>();
-        for (int i = 0; i < tokens.length; i++) {
-            if (tokens[i].matches("[pP]{1}[\\d]+")) {
-                try {
-                    toReturn.add(Integer.parseInt(tokens[i].substring(1)));
-                } catch (NumberFormatException e) {
-                    System.out.println("error parsing for valid promoter sites");
-                    e.printStackTrace();
+        for (int i = 0; i < tokens.length - 1; i++) {
+            boolean shouldAdd = false;
+            if (tokens[i].matches("[pP]{1}[\\d]+") && !tokens[i + 1].matches("[xX]{1}[.]*")) {
+                for (int j = i + 1; j < tokens.length; j++) {
+                    if (tokens[j].matches("[rR]{1}[\\d]+") || tokens[j].matches("[@]{1}[\\d]+")) {
+                        shouldAdd = true;
+                        break;
+                    } else if (tokens[j].matches("[xX]{1}[^']*")) {
+                        shouldAdd = false;
+                        break;
+                    }
+                }
+                if (shouldAdd) {
+                    try {
+                        toReturn.add(Integer.parseInt(tokens[i].substring(1)));
+                    } catch (NumberFormatException e) {
+                        System.out.println("error parsing for valid promoter sites");
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -144,11 +156,9 @@ public class SimulatorController implements Comparator {
             if (starts.size() > 0 && ends.size() > 0) {
                 for (int i = 0; i < Math.min(starts.size(), ends.size()); i++) {
                     String regionOfInterest = _currentState.substring(starts.get(i), ends.get(i));
-//                    System.out.println("active region: " + regionOfInterest);
                     Pattern p = Pattern.compile("[rR]{1}[\\d]+");
                     Matcher m = p.matcher(regionOfInterest);
                     while (m.find()) {
-//                        System.out.println("expressed reporter: " + m.group());
                         _finalStates.put(_input + " " + _promoterNumber + " " + m.group(), _currentState);
 
                     }
@@ -212,21 +222,21 @@ public class SimulatorController implements Comparator {
             Pattern p = Pattern.compile("[iI]{1}" + temp + "[^']{1}");
             Matcher m = p.matcher(newState);
             ArrayList<Integer> starts = new ArrayList();
+
+
             while (m.find()) {
                 starts.add(m.start());
             }
-            int lengthDifference=0;
-            for (int i = 0; i < starts.size() - 1; i++) {
-                //this loop performs the excisions
-                int originalLength = newState.length();
-                newState = newState.substring(0, starts.get(i)-lengthDifference) + newState.substring(starts.get(i + 1)-lengthDifference);
-                 lengthDifference = lengthDifference+originalLength - newState.length();
-//                ArrayList<Integer> newStarts =new ArrayList<Integer>();
-//                for (int j =0; j<starts.size();j++) {
-//                    
-//                    
-//                }
+            while (starts.size() > 1) {
+                newState = newState.substring(0, starts.get(0)) + newState.substring(starts.get(1));
+                p = Pattern.compile("[iI]{1}" + temp + "[^'\\d]{1}");
+                m = p.matcher(newState);
+                starts = new ArrayList();
+                while (m.find()) {
+                    starts.add(m.start());
+                }
             }
+
         }
         return newState;
 
@@ -363,6 +373,7 @@ public class SimulatorController implements Comparator {
         String toReturn = "";
         for (StateMachineNode smn : _nodes) {
             toReturn = toReturn + smn._module + "\n";
+            toReturn=toReturn.replace("X X' X X'", "X X'");
         }
         return toReturn;
     }
