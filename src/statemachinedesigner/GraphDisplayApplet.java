@@ -34,6 +34,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Timer;
 import org.apache.commons.collections15.Transformer;
 
@@ -60,7 +61,7 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
 
         this._graph = og;
         //create a graphdraw
-        layout = new SpringLayout<Number,PromoterEdge>(_graph);
+        layout = new SpringLayout<Number, PromoterEdge>(_graph);
 //scale this to the size of the design input panel
         vv = new VisualizationViewer<Number, PromoterEdge>(layout, new Dimension(600, 250));
         getContentPane().setLayout(new BorderLayout());
@@ -124,16 +125,24 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
 
     }
 
-    public void removeEdge(Integer source, Integer dest) {
+    public void removeEdge(Integer source, Integer dest, String weight) {
         try {
 
             layout.lock(true);
             Relaxer relaxer = vv.getModel().getRelaxer();
             relaxer.pause();
-            PromoterEdge toDelete = _graph.findEdge(source, dest);
-            if (toDelete != null) {
-                _graph.removeEdge(toDelete);
-
+            ArrayList<PromoterEdge> deleteCandidates = new ArrayList<PromoterEdge>();
+            deleteCandidates.addAll(_graph.findEdgeSet(source, dest));
+            for (int i = 0; i < deleteCandidates.size(); i++) {
+                if (!deleteCandidates.get(i).getWeight().equals(weight)) {
+                    deleteCandidates.remove(i);
+                    i--;
+                }
+            }
+            for (PromoterEdge pe : deleteCandidates) {
+                    _graph.removeEdge(pe);              
+            }
+            if (deleteCandidates.size() > 0) {
                 if (_graph.getNeighborCount(dest) < 1) {
                     _graph.removeVertex(dest);
                 }
@@ -141,7 +150,6 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
                     _graph.removeVertex(source);
                 }
             }
-
             layout.initialize();
             relaxer.resume();
             layout.lock(false);
