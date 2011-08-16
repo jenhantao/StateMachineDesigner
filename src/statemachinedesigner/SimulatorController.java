@@ -101,9 +101,6 @@ public class SimulatorController implements Comparator {
             _input = _inputSet.poll();
             ArrayList<Integer> activePromoters = findActivePromoters(_currentState);
             for (Integer i : activePromoters) {
-                if (_view.isShowIntermediate()) {
-                    System.out.println("activating promoter:" + i);
-                }
                 activatePromoter(i);
             }
         }
@@ -228,11 +225,27 @@ public class SimulatorController implements Comparator {
             for (int i = 0; i < numberString.length(); i++) {
                 temp = temp + "[" + numberString.substring(i, i + 1) + "]{1}";
             }
-            Pattern p = Pattern.compile("[iI]{1}" + temp + "[,]?[a-zA-Z]*[^'\\d]{1}");
+            Pattern p = Pattern.compile("[iI]{1}" + temp + "[,]?" + "[a-zA-Z]*" + "[^'\\w,]{1}");
             Matcher m = p.matcher(newState);
+            ArrayList<String> letterTags = new ArrayList<String>();
+            while (m.find()) {
+                int index=m.group().indexOf(",");
+                String tag = m.group().substring(m.group().indexOf(",") + 1);
+                if (!letterTags.contains(tag) && index>0) {
+                    letterTags.add(tag);
+                }
+            }
+            if (letterTags.size() > 0) {
+                p = Pattern.compile("[iI]{1}" + temp + "[,]{1}[" + letterTags.get(0) + "]{1}[^'\\w,]{1}");
+                m = p.matcher(newState);
+                letterTags.remove(0);
+            } else {
+                p = Pattern.compile("[iI]{1}" + temp + "[^'\\w,]{1}");
+                m = p.matcher(newState);
+            }
+
+
             ArrayList<Integer> starts = new ArrayList();
-
-
             while (m.find()) {
                 starts.add(m.start());
             }
@@ -241,14 +254,22 @@ public class SimulatorController implements Comparator {
                     System.out.println("cutting out:" + newState.substring(starts.get(0), starts.get(1)));
                 }
                 newState = newState.substring(0, starts.get(0)) + newState.substring(starts.get(1));
-                p = Pattern.compile("[iI]{1}" + temp + "[^'\\d]{1}");
-                m = p.matcher(newState);
+//                p = Pattern.compile("[iI]{1}" + temp + "[^'\\d]{1}");
+//                m = p.matcher(newState);
+                if (letterTags.size() > 0) {
+                    p = Pattern.compile("[iI]{1}" + temp + "[,]{1}[" + letterTags.get(0) + "]{1}[^'\\w,]{1}");
+                    m = p.matcher(newState);
+                    letterTags.remove(0);
+                } else {
+                    p = Pattern.compile("[iI]{1}" + temp + "[^'\\w,]{1}");
+                    m = p.matcher(newState);
+                }
                 starts.clear();
-//                starts = new ArrayList();
                 while (m.find()) {
                     starts.add(m.start());
                 }
             }
+
 
         }
         return newState;
