@@ -11,6 +11,7 @@
 package statemachinedesigner;
 
 import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,8 +39,6 @@ public class SimulatorFrame extends javax.swing.JFrame {
 
         designInputPanel.setLayout(new BorderLayout());
         designInputPanel.add(_gda.getContentPane(), BorderLayout.CENTER);
-
-
     }
 
     /** This method is called from within the constructor to
@@ -140,9 +139,9 @@ public class SimulatorFrame extends javax.swing.JFrame {
                             .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
-                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
-                            .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)))
+                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                            .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)))
                     .addGroup(testPanelLayout.createSequentialGroup()
                         .addGap(74, 74, 74)
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -152,7 +151,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(testPanelLayout.createSequentialGroup()
                                 .addComponent(intermediateStepsCheckbox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(runSimulationButton))
                             .addComponent(useInvertaseCheckBox))))
                 .addContainerGap())
@@ -168,7 +167,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(testResultsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(statusLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -188,6 +187,11 @@ public class SimulatorFrame extends javax.swing.JFrame {
         inputTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inputTextFieldActionPerformed(evt);
+            }
+        });
+        inputTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                inputTextFieldKeyTyped(evt);
             }
         });
 
@@ -221,6 +225,11 @@ public class SimulatorFrame extends javax.swing.JFrame {
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addButtonActionPerformed(evt);
+            }
+        });
+        addButton.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                addButtonKeyTyped(evt);
             }
         });
 
@@ -272,7 +281,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
 
         designStatusTextArea.setColumns(20);
         designStatusTextArea.setEditable(false);
-        designStatusTextArea.setFont(new java.awt.Font("Monospaced", 0, 10)); // NOI18N
+        designStatusTextArea.setFont(new java.awt.Font("Monospaced", 0, 10));
         designStatusTextArea.setRows(5);
         designStatusTextArea.setPreferredSize(new java.awt.Dimension(500, 94));
 
@@ -422,13 +431,13 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 designStatusTextArea.setText("");
             }
             for (int i = 0; i < indices.length; i++) {
-                String toAdd = removeDesignInput((String) _designInputModel.get(indices[i]-i));
+                String toAdd = removeDesignInput((String) _designInputModel.get(indices[i] - i));
 
                 _designInputModel.remove(indices[i] - i);
                 if (toAdd.contains("invalid")) {
-                    designStatusTextArea.append(toAdd+"\n");
+                    designStatusTextArea.append(toAdd + "\n");
                 } else {
-                    designStatusTextArea.append("removed: " + toAdd+"\n");
+                    designStatusTextArea.append("removed: " + toAdd + "\n");
                 }
             }
             int index = indices[indices.length - 1] - indices.length + 1;
@@ -468,6 +477,31 @@ private void useRecombinaseCheckBoxActionPerformed(java.awt.event.ActionEvent ev
 private void useInvertaseCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useInvertaseCheckBoxActionPerformed
     _controller.changeInvertaseUse();
 }//GEN-LAST:event_useInvertaseCheckBoxActionPerformed
+
+private void addButtonKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_addButtonKeyTyped
+// TODO add your handling code here:
+}//GEN-LAST:event_addButtonKeyTyped
+
+private void inputTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputTextFieldKeyTyped
+    if (evt.getKeyChar() == ' ' &&  inputTextField.getText().split("\\s").length>2) {
+        String toAdd = inputTextField.getText();
+        if (toAdd != null) {
+            toAdd = toAdd.trim();
+            toAdd = addDesignInput(toAdd);
+            if (toAdd.contains("invalid")) {
+                designStatusTextArea.setText(toAdd);
+            } else {
+                _designInputModel.addElement(toAdd);
+                inputTextField.setText("");
+                designStatusTextArea.setText("added: " + toAdd);
+
+            }
+            inputTextField.requestFocus();
+        }
+            evt.consume();
+
+    }
+}//GEN-LAST:event_inputTextFieldKeyTyped
     public void setTestStatus(String s) {
         statusLabel.setText(s);
     }
@@ -574,7 +608,6 @@ private void useInvertaseCheckBoxActionPerformed(java.awt.event.ActionEvent evt)
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane mainTabbedPane;
     private javax.swing.JButton removeButton;

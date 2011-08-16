@@ -63,7 +63,7 @@ public class GraphDisplayApplet extends javax.swing.JApplet {
         //create a graphdraw
         layout = new SpringLayout<Number, PromoterEdge>(_graph);
 //scale this to the size of the design input panel
-        vv = new VisualizationViewer<Number, PromoterEdge>(layout, new Dimension(600, 250));
+        vv = new VisualizationViewer<Number, PromoterEdge>(layout, new Dimension(500, 250));
         getContentPane().setLayout(new BorderLayout());
         vv.setGraphMouse(new DefaultModalGraphMouse<Number, PromoterEdge>());
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.CNTR);

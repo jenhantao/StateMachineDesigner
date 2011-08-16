@@ -46,11 +46,11 @@ public class SimulatorController implements Comparator {
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].matches("[pP]{1}[\\d]+[']?")) {
 //                System.out.println(text + " contains a promoter site: " + tokens[i]);
-            } else if (tokens[i].matches("[iI]{1}[\\d]+[']?")) {
+            } else if (tokens[i].matches("[iI]{1}[\\d]+[']?[,]?[a-zA-Z]*")) {
 //                System.out.println(text + " contains a invertase recognition site: " + tokens[i]);
             } else if (tokens[i].matches("[@]{1}[\\d]+[']?")) {
 //                System.out.println(text + " contains a invertase coding region: " + tokens[i]);
-            } else if (tokens[i].matches("[xX]{1}[']?")) {
+            } else if (tokens[i].matches("[tT]{1}[']?")) {
 //                System.out.println(text + " contains a terminator region: " + tokens[i]);
             } else if (tokens[i].matches("[rR]{1}[\\d]+[']?")) {
 //                System.out.println(text + " contains a reporter coding region: " + tokens[i]);
@@ -101,6 +101,9 @@ public class SimulatorController implements Comparator {
             _input = _inputSet.poll();
             ArrayList<Integer> activePromoters = findActivePromoters(_currentState);
             for (Integer i : activePromoters) {
+                if (_view.isShowIntermediate()) {
+                    System.out.println("activating promoter:" + i);
+                }
                 activatePromoter(i);
             }
         }
@@ -113,12 +116,12 @@ public class SimulatorController implements Comparator {
         ArrayList<Integer> toReturn = new ArrayList<Integer>();
         for (int i = 0; i < tokens.length - 1; i++) {
             boolean shouldAdd = false;
-            if (tokens[i].matches("[pP]{1}[\\d]+") && !tokens[i + 1].matches("[xX]{1}[.]*")) {
+            if (tokens[i].matches("[pP]{1}[\\d]+") && !tokens[i + 1].matches("[tT]{1}[.]*")) {
                 for (int j = i + 1; j < tokens.length; j++) {
                     if (tokens[j].matches("[rR]{1}[\\d]+") || tokens[j].matches("[@]{1}[\\d]+")) {
                         shouldAdd = true;
                         break;
-                    } else if (tokens[j].matches("[xX]{1}[^']*")) {
+                    } else if (tokens[j].matches("[tT]{1}[^']*")) {
                         shouldAdd = false;
                         break;
                     }
@@ -139,11 +142,11 @@ public class SimulatorController implements Comparator {
     private void activatePromoter(int promoterNumber) {
         _promoterNumber = promoterNumber;
         if (_input.indexOf(Integer.toString(promoterNumber)) < 0) { //don't allow repeat use of promoters
-            ArrayList<Integer> activatedInvertase = new ArrayList<Integer>();
+            ArrayList<String> activatedInvertase = new ArrayList<String>();
             ArrayList<Integer> starts = new ArrayList<Integer>();
             ArrayList<Integer> ends = new ArrayList<Integer>();
             int start = _currentState.indexOf("P" + promoterNumber + " ") + ("p" + promoterNumber + 1).length();
-            int end = _currentState.indexOf("X ", start);
+            int end = _currentState.indexOf("T ", start);
             while (start > -1) {
                 starts.add(start);
                 if (end < 0) {
@@ -151,7 +154,7 @@ public class SimulatorController implements Comparator {
                 }
                 ends.add(end);
                 start = _currentState.indexOf("P" + promoterNumber + " ", start + 1);
-                end = _currentState.indexOf("X ", start);
+                end = _currentState.indexOf("T ", start);
             }
             if (starts.size() > 0 && ends.size() > 0) {
                 for (int i = 0; i < Math.min(starts.size(), ends.size()); i++) {
@@ -162,12 +165,18 @@ public class SimulatorController implements Comparator {
                         _finalStates.put(_input + " " + _promoterNumber + " " + m.group(), _currentState);
 
                     }
-
-                    p = Pattern.compile("[@]{1}[\\d]+[^']{1}");
+                    if (_useRecombinase) {
+                        p = Pattern.compile("[@]{1}[\\d]+[^']{1}");
+                    } else if (_useInvertase) {
+                        p = Pattern.compile("[@]{1}[\\d]+");
+                    }
                     m = p.matcher(regionOfInterest);
 
                     while (m.find()) {
-                        activatedInvertase.add(Integer.parseInt(m.group().substring(1).trim()));
+                        if (_view.isShowIntermediate()) {
+                            System.out.println("transcribing recombinase:" + m.group().substring(1));
+                        }
+                        activatedInvertase.add(m.group().trim());
                     }
                 }
             }
@@ -211,15 +220,15 @@ public class SimulatorController implements Comparator {
 
     }
 
-    private String activateRecombinase(ArrayList<Integer> activeSites) {
+    private String activateRecombinase(ArrayList<String> activeSites) {
         String newState = _currentState;
-        for (int recombinaseNumber : activeSites) {
-            String numberString = Integer.toString(recombinaseNumber);
+        for (String recombinaseNumber : activeSites) {
+            String numberString = recombinaseNumber.substring(1);
             String temp = "";
             for (int i = 0; i < numberString.length(); i++) {
                 temp = temp + "[" + numberString.substring(i, i + 1) + "]{1}";
             }
-            Pattern p = Pattern.compile("[iI]{1}" + temp + "[^']{1}");
+            Pattern p = Pattern.compile("[iI]{1}" + temp + "[,]?[a-zA-Z]*[^'\\d]{1}");
             Matcher m = p.matcher(newState);
             ArrayList<Integer> starts = new ArrayList();
 
@@ -228,10 +237,14 @@ public class SimulatorController implements Comparator {
                 starts.add(m.start());
             }
             while (starts.size() > 1) {
+                if (_view.isShowIntermediate()) {
+                    System.out.println("cutting out:" + newState.substring(starts.get(0), starts.get(1)));
+                }
                 newState = newState.substring(0, starts.get(0)) + newState.substring(starts.get(1));
                 p = Pattern.compile("[iI]{1}" + temp + "[^'\\d]{1}");
                 m = p.matcher(newState);
-                starts = new ArrayList();
+                starts.clear();
+//                starts = new ArrayList();
                 while (m.find()) {
                     starts.add(m.start());
                 }
@@ -242,15 +255,15 @@ public class SimulatorController implements Comparator {
 
     }
 
-    private String activateInvertase(ArrayList<Integer> activeSites) {
+    private String activateInvertase(ArrayList<String> activeSites) {
         String newState = _currentState;
-        for (int invertaseNumber : activeSites) {
-            String numberString = Integer.toString(invertaseNumber);
+        for (String invertaseNumber : activeSites) {
+            String numberString = invertaseNumber.substring(1);
             String temp = "";
             for (int i = 0; i < numberString.length(); i++) {
                 temp = temp + "[" + numberString.substring(i, i + 1) + "]{1}";
             }
-            Pattern p = Pattern.compile("[iI]{1}" + temp + "[\\s]{1}");
+            Pattern p = Pattern.compile("[iI]{1}" + temp + "[,]?[a-zA-Z]*[\\s]{1}");
             Matcher m = p.matcher(newState);
             ArrayList<Integer> starts = new ArrayList<Integer>();
             ArrayList<Integer> ends = new ArrayList<Integer>();
@@ -373,7 +386,7 @@ public class SimulatorController implements Comparator {
         String toReturn = "";
         for (StateMachineNode smn : _nodes) {
             toReturn = toReturn + smn._module + "\n";
-            toReturn=toReturn.replace("X X' X X'", "X X'");
+            toReturn = toReturn.replace("T T", "T");
         }
         return toReturn;
     }
@@ -383,20 +396,19 @@ public class SimulatorController implements Comparator {
         ArrayList<StateMachineNode> children = smn.getChildren();
         ArrayList<StateMachineNode> siblings = smn.getSiblings();
 
-        //add self deacting invertase sites
-        module = module + " @" + _recombinaseCount;
-        if (!children.isEmpty()) {
-            module = flankElementWith(module, "P" + smn._promoter, "I" + _recombinaseCount);
-        }
-        for (StateMachineNode sib : siblings) {
-            addDeactivatingSites(sib, _recombinaseCount);
-        }
-        _recombinaseCount++;
-        //link with other modules
-        for (int i = 0; i < children.size(); i++) {
 
+        if (!children.isEmpty()) {
+            //add self deacting invertase sites
             module = module + " @" + _recombinaseCount;
-            addActivatingSites(children.get(i), _recombinaseCount);
+            module = flankElementWith(module, "P" + smn._promoter, "I" + _recombinaseCount);
+            _recombinaseCount++; //prevents self deactivating invertase site from being the same 
+        }
+        //add recombinase for deactivating siblings
+        if (siblings.size() > 0) {
+            module = module + " @" + _recombinaseCount;
+            for (StateMachineNode sib : siblings) {
+                addDeactivatingSites(sib, _recombinaseCount);
+            }
             _recombinaseCount++;
         }
 
@@ -404,8 +416,15 @@ public class SimulatorController implements Comparator {
         if (children.isEmpty()) {
             module = module + " R" + _reporterCount;
             _reporterCount++;
+        } else {
+            //link with other modules
+            for (int i = 0; i < children.size(); i++) {
+                module = module + " @" + _recombinaseCount;
+                addActivatingSites(children.get(i), _recombinaseCount);
+                _recombinaseCount++;
+            }
         }
-        module = module + " X X'";
+        module = module + " T";
         smn._module = module;
 
 
@@ -414,7 +433,7 @@ public class SimulatorController implements Comparator {
     private void addActivatingSites(StateMachineNode smn, int i) {
         String module = smn._module;
         String s = "I" + i;
-        module = module.substring(0, module.indexOf("X X'") + 4) + flankElementWith(module.substring(module.indexOf("X X'") + 4), "X X'", s);
+        module = module.substring(0, module.indexOf("T") + 4) + flankElementWith(module.substring(module.indexOf("T") + 4), "T", s);
         smn._module = module;
 
     }
@@ -468,9 +487,9 @@ public class SimulatorController implements Comparator {
         private StateMachineNode(PromoterEdge pe, Integer index) {
             _pe = pe;
             _promoter = index;
-            _module = "X X' P" + _promoter;
+            _module = "T P" + _promoter;
             if (pe.source != 0) {//exception for starting arcs
-                _module = _module + " X X'";
+                _module = _module + " T";
             }
             _children = new ArrayList<Integer>();
 
