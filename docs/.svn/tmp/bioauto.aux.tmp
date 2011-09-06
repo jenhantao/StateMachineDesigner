@@ -1,0 +1,9 @@
+\relax 
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces \sc  Bio-automaton generator}}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}A Proof of Concept}{2}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Table 1- Bio-automaton design symbology}}{3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The bioautomaton described by the proof of concept construct is described by the following graph. States are represented by vertices and each arc corresponds to an inducible promoter}}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Positive Points}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Optimization}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Future Work}{5}}

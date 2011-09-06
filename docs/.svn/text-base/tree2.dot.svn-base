@@ -1,0 +1,11 @@
+digraph G {
+node [shape=circle];
+size="4.0,6.5";
+	"0" -> "1" [label="0" pos ="0,0!"];
+	"1" -> "3" [label="2"];
+node [color="red"];
+	"0" -> "2" [label="1"];
+node [color="green"];	
+	"3" -> "4" [label="3"];
+
+}
