@@ -139,9 +139,9 @@ public class SimulatorFrame extends javax.swing.JFrame {
                             .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
-                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
-                            .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)))
+                            .addComponent(testResultsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
+                            .addComponent(testInputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
+                            .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)))
                     .addGroup(testPanelLayout.createSequentialGroup()
                         .addGap(74, 74, 74)
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -151,7 +151,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                         .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(testPanelLayout.createSequentialGroup()
                                 .addComponent(intermediateStepsCheckbox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
                                 .addComponent(runSimulationButton))
                             .addComponent(useInvertaseCheckBox))))
                 .addContainerGap())
@@ -167,7 +167,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(testResultsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addComponent(statusLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(testPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -255,7 +255,7 @@ public class SimulatorFrame extends javax.swing.JFrame {
             }
         });
 
-        generateButton1.setText("Test!!!");
+        generateButton1.setText("switch syntax");
         generateButton1.setToolTipText("Generate a new design");
         generateButton1.setMaximumSize(new java.awt.Dimension(90, 25));
         generateButton1.setMinimumSize(new java.awt.Dimension(90, 25));
@@ -460,14 +460,12 @@ public class SimulatorFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_generateButtonActionPerformed
     private void generateButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButton1ActionPerformed
-        _gda.createEdge(0, 1, "0");
-        _gda.createEdge(1, 3, "2");
-        _gda.createEdge(0, 2, "1");
-        _gda.createEdge(2, 3, "3");
-        _gda.createEdge(3, 4, "4");
-        _gda.createEdge(3, 5, "5");
-
-
+        String design = designResultArea.getText();
+        if(design.length()<1) {
+            designResultArea.setText("Please genearte a design first");
+        } else {
+            designResultArea.setText(_controller.translateSwap(design));
+        }
     }//GEN-LAST:event_generateButton1ActionPerformed
 
 private void useRecombinaseCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useRecombinaseCheckBoxActionPerformed

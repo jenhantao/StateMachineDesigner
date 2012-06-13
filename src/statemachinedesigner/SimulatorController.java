@@ -229,9 +229,9 @@ public class SimulatorController implements Comparator {
             Matcher m = p.matcher(newState);
             ArrayList<String> letterTags = new ArrayList<String>();
             while (m.find()) {
-                int index=m.group().indexOf(",");
+                int index = m.group().indexOf(",");
                 String tag = m.group().substring(m.group().indexOf(",") + 1);
-                if (!letterTags.contains(tag) && index>0) {
+                if (!letterTags.contains(tag) && index > 0) {
                     letterTags.add(tag);
                 }
             }
@@ -494,6 +494,56 @@ public class SimulatorController implements Comparator {
 
         }
         return 0;
+    }
+
+    String translateSwap(String design) {
+        String toReturn = "";
+        if (design.contains("(")) {
+                            int reporterNumber = 0;
+
+            String[] modules = design.split("\n");
+            for (int i = 0; i < modules.length; i++) {
+                String module = "";
+                String[] tokens = modules[i].split(" ");
+                for (int j = 0; j < tokens.length; j++) {
+                    if (tokens[j].startsWith("s(")) {
+                        module = module + "I" + tokens[j].substring(2, tokens[j].length() - 1) + " ";
+                    } else if (tokens[j].startsWith("p")) {
+                        module = module + "P" + tokens[j].substring(2, tokens[j].length() - 1) + " ";
+                    } else if (tokens[j].startsWith("g(")) {
+                        module = module + "@" + tokens[j].substring(2, tokens[j].length() - 1) + " ";
+                    } else if (tokens[j].startsWith("xFP")) {
+                        module = module + "R" + reporterNumber + " ";
+                        reporterNumber++;
+                    } else {
+                        module = module + tokens[j] + " ";
+                    }
+                }
+                toReturn = toReturn + module + "\n";
+            }
+
+        } else {
+            String[] modules = design.split("\n");
+            for (int i = 0; i < modules.length; i++) {
+                String module = "";
+                String[] tokens = modules[i].split(" ");
+                for (int j = 0; j < tokens.length; j++) {
+                    if (tokens[j].startsWith("I")) {
+                        module = module + "s(" + tokens[j].substring(1) + ") ";
+                    } else if (tokens[j].startsWith("P")) {
+                        module = module + "p(" + tokens[j].substring(1) + ") ";
+                    } else if (tokens[j].startsWith("@")) {
+                        module = module + "g(" + tokens[j].substring(1) + ") ";
+                    } else if (tokens[j].startsWith("R")) {
+                        module = module + "xFP ";
+                    } else {
+                        module = module + tokens[j] + " ";
+                    }
+                }
+                toReturn = toReturn + module + "\n";
+            }
+        }
+        return toReturn;
     }
 
     private class StateMachineNode {
