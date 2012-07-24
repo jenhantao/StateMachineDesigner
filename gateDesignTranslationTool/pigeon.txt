@@ -1,0 +1,71 @@
+p p(1)
+p p(4)
+r
+c g(7)
+t
+p p(b)
+p p(0)
+r
+c g(4)
+t
+p p(a)
+> (0)
+p p
+< (0)
+r
+c g(r1)
+t
+> (r1)
+p p
+< (r1)
+r
+c g(1)
+t
+p p(c)
+> (0)
+p p
+< (0)
+r
+c g(r2)
+t
+> (r2)
+p p
+< (r2)
+r
+c g(6)
+t
+> (7)
+p p
+< (7)
+> (0)
+p p
+< (0)
+r
+c g(r3)
+t
+> (r3)
+p p
+< (r3)
+r
+c g(3)
+t
+> (3)
+p p
+< (3)
+> (6)
+p p
+< (6)
+r
+c g(r4)
+t
+> (r4)
+p p
+< (r4)
+r
+c g(8)
+t
+p p(8)
+r
+xFP
+t
+# Arcs
