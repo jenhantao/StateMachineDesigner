@@ -17,6 +17,11 @@ class Node:
 ### Arguments ###
 inputFileName = sys.argv[1]
 fileNameRoot = inputFileName.split(".")[0]
+if len(sys.argv) > 2:
+	if sys.argv[2] == "n":
+		nested = True # recombinase sites are nested
+	elif sys.argv[2] == "m":
+		multi = True # recombinase can recognize multiple sites
 
 inputFile = open(inputFileName)
 input = inputFile.readlines()
@@ -80,80 +85,85 @@ else:
 			# first node with no parent is the root 
 			root = node
 			break
+# print out pigeon designs
+
+def makeMultiFile(root):
 # gather the neighbors for each node - this is used to determine the recognition sites recognized by each recombinase
 # assign state numbers
-# also print out the graphviz graph
-allModuleNodes = [];
-queue = []
-queue.append(root)
-count = 0;
-while queue:
-	currentNode = queue[0]
-	queue.remove(currentNode)
-	if not currentNode.letter == None:
-		allModuleNodes.append(currentNode)
-	if wordList:
-		currentNode.state = count;
-		count = count + 1;
- 	for child in currentNode.children:
- 		queue.append(child)
-		for neighbor in currentNode.children:
-			if not child.letter == neighbor.letter:
-				child.neighbors.append(neighbor)
-# print out pigeon designs
-pigeonFile = open(fileNameRoot+"_pigeon.txt",'w')
-geneFunctionFile = open(fileNameRoot+"_geneFunction.txt",'w')
-for node in allModuleNodes:
-	#partType partName color
-	print "##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###"
-	pigeonFile.write("##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###\n")
-	if node.level==1:
-		print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
-		pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
-	else:
-		print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
-		pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
-# print out what each gene/recombinase does
-	print "### GENE FUNCTION ###"
-	print "### GENE FUNCTION ###"
-	if len(node.children) > 0:
-		# gene is a recombinase
-		print "C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:"
-		geneFunctionFile.write("C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:\n")
-		print str(node.state)+str(node.letter)+"p"
-		geneFunctionFile.write(str(node.state)+str(node.letter)+"p\n")
-		for neighbor in node.neighbors:
-			print str(neighbor.state)+str(neighbor.letter)+"p"
-			geneFunctionFile.write(str(neighbor.state)+str(neighbor.letter)+"p\n")
-		for child in node.children:
-			print str(child.state)+str(child.letter)+"t"
-			geneFunctionFile.write(str(child.state)+str(child.letter)+"t\n")
-	else:
-		# gene is a reporter
-		parent = node.parent
-		word = node.letter
-		while not parent == None:
-			if not parent.letter == None:
-				word = str(parent.letter)+word
-			parent = parent.parent
-		print "C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word
-		geneFunctionFile.write("C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word+"\n")
+	pigeonFile = open(fileNameRoot+"_pigeon.txt",'w')
+	geneFunctionFile = open(fileNameRoot+"_geneFunction.txt",'w')
+	allModuleNodes = [];
+	queue = []
+	queue.append(root)
+	count = 0;
+	while queue:
+		currentNode = queue[0]
+		queue.remove(currentNode)
+		if not currentNode.letter == None:
+			allModuleNodes.append(currentNode)
+		if wordList:
+			currentNode.state = count;
+			count = count + 1;
+		for child in currentNode.children:
+			queue.append(child)
+			for neighbor in currentNode.children:
+				if not child.letter == neighbor.letter:
+					child.neighbors.append(neighbor)
+		for node in allModuleNodes:
+			#partType partName color
+			print "##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###"
+			pigeonFile.write("##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###\n")
+			if node.level==1:
+				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+			else:
+				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+		# print out what each gene/recombinase does
+			print "### GENE FUNCTION ###"
+			geneFunctionFile.write("### GENE FUNCTION ###\n")
+			if len(node.children) > 0:
+				# gene is a recombinase
+				print "C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:"
+				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:\n")
+				print str(node.state)+str(node.letter)+"p"
+				geneFunctionFile.write(str(node.state)+str(node.letter)+"p\n")
+				for neighbor in node.neighbors:
+					print str(neighbor.state)+str(neighbor.letter)+"p"
+					geneFunctionFile.write(str(neighbor.state)+str(neighbor.letter)+"p\n")
+				for child in node.children:
+					print str(child.state)+str(child.letter)+"t"
+					geneFunctionFile.write(str(child.state)+str(child.letter)+"t\n")
+			else:
+				# gene is a reporter
+				parent = node.parent
+				word = node.letter
+				while not parent == None:
+					if not parent.letter == None:
+						word = str(parent.letter)+word
+					parent = parent.parent
+				print "C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word
+				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word+"\n")
+	pigeonFile.close()
+	geneFunctionFile.close()
 
 # print out the graphviz graph
-graphVizFile = open (fileNameRoot+"_graphviz.txt","w")
-print "##### GRAPHVIZ ###\ndigraph{"
-graphVizFile.write("##### GRAPHVIZ ###\ndigraph{\n")
-queue = []
-queue.append(root)
-while queue:
-	currentNode = queue[0]
-	queue.remove(currentNode)
- 	for child in currentNode.children:
- 		queue.append(child)
-		print str(currentNode.state)+ " -> "+str(child.state)+"[label=\""+str(child.letter)+"\"]"
-		graphVizFile.write(str(currentNode.state)+ " -> "+str(child.state)+"[label=\""+str(child.letter)+"\"]\n")
-print "}"
-graphVizFile.write("}\n")
-pigeonFile.close()
-geneFunctionFile.close()
-graphVizFile.close()
+def makeGraphVizFile(root):
+	graphVizFile = open (fileNameRoot+"_graphviz.txt","w")
+	print "##### GRAPHVIZ ###\ndigraph{"
+	graphVizFile.write("##### GRAPHVIZ ###\ndigraph{\n")
+	queue = []
+	queue.append(root)
+	while queue:
+		currentNode = queue[0]
+		queue.remove(currentNode)
+		for child in currentNode.children:
+			queue.append(child)
+			print str(currentNode.state)+ " -> "+str(child.state)+"[label=\""+str(child.letter)+"\"]"
+			graphVizFile.write(str(currentNode.state)+ " -> "+str(child.state)+"[label=\""+str(child.letter)+"\"]\n")
+	print "}"
+
+	graphVizFile.write("}\n")
+	graphVizFile.close()
+makeMultiFile(root)
+makeGraphVizFile(root)
