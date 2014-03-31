@@ -85,8 +85,8 @@ else:
 			# first node with no parent is the root 
 			root = node
 			break
-# print out pigeon designs
 
+# for the multi recognition site optimization
 def makeMultiFile(root):
 # gather the neighbors for each node - this is used to determine the recognition sites recognized by each recombinase
 # assign state numbers
