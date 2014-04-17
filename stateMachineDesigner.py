@@ -86,6 +86,81 @@ else:
 			root = node
 			break
 
+# for the naive file
+def makeNaiveFile(root):
+# gather the neighbors for each node - this is used to determine the recognition sites recognized by each recombinase
+# assign state numbers
+	pigeonFile = open(fileNameRoot+"_pigeon.txt",'w')
+	geneFunctionFile = open(fileNameRoot+"_geneFunction.txt",'w')
+	allModuleNodes = [];
+	queue = []
+	queue.append(root)
+	count = 0;
+	while queue:
+		currentNode = queue[0]
+		queue.remove(currentNode)
+		if not currentNode.letter == None:
+			allModuleNodes.append(currentNode)
+		if wordList:
+			currentNode.state = count;
+			count = count + 1;
+		for child in currentNode.children:
+			queue.append(child)
+			for neighbor in currentNode.children:
+				if not child.letter == neighbor.letter:
+					child.neighbors.append(neighbor)
+		for node in allModuleNodes:
+			#partType partName color
+			print "##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###"
+			pigeonFile.write("##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###\n")
+			if node.level==1:
+			# starting nodes
+				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+			elif len(node.children) == 0:
+			# leaf nodes
+				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+			else:
+			# intermediate nodes
+				recombString = "" # gives pigeon code for the recombinase associated with this
+				recombString += "" # for removing promoter
+				# for removing terminators in child nodes
+				for child in node.children:
+					recombString += # for removing promoter
+				# for removing promoters of neighbors' children
+				for neighbor in node.neighbors:
+					recombString += # for removing promoter
+				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\n"+recombString+"\nt t\n# Arcs"
+				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+		# print out what each gene/recombinase does
+			print "### GENE FUNCTION ###"
+			geneFunctionFile.write("### GENE FUNCTION ###\n")
+			if len(node.children) > 0:
+				# gene is a recombinase
+				print "C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:"
+				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:\n")
+				print str(node.state)+str(node.letter)+"p"
+				geneFunctionFile.write(str(node.state)+str(node.letter)+"p\n")
+				for neighbor in node.neighbors:
+					print str(neighbor.state)+str(neighbor.letter)+"p"
+					geneFunctionFile.write(str(neighbor.state)+str(neighbor.letter)+"p\n")
+				for child in node.children:
+					print str(child.state)+str(child.letter)+"t"
+					geneFunctionFile.write(str(child.state)+str(child.letter)+"t\n")
+			else:
+				# gene is a reporter
+				parent = node.parent
+				word = node.letter
+				while not parent == None:
+					if not parent.letter == None:
+						word = str(parent.letter)+word
+					parent = parent.parent
+				print "C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word
+				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word+"\n")
+	pigeonFile.close()
+	geneFunctionFile.close()
+
 # for the multi recognition site optimization
 def makeMultiFile(root):
 # gather the neighbors for each node - this is used to determine the recognition sites recognized by each recombinase
@@ -117,8 +192,8 @@ def makeMultiFile(root):
 				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
 				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
 			else:
-				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
-				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
 		# print out what each gene/recombinase does
 			print "### GENE FUNCTION ###"
 			geneFunctionFile.write("### GENE FUNCTION ###\n")
@@ -147,7 +222,17 @@ def makeMultiFile(root):
 	pigeonFile.close()
 	geneFunctionFile.close()
 
-# print out the graphviz graph
+
+def makeNestedFile(root):
+# gather the neighbors for each node - this is used to determine the recognition sites recognized by each recombinase
+# assign state numbers
+	pigeonFile = open(fileNameRoot+"_pigeon.txt",'w')
+	geneFunctionFile = open(fileNameRoot+"_geneFunction.txt",'w')
+
+	pigeonFile.close()
+	geneFunctionFile.close()
+
+# make the graphviz graph
 def makeGraphVizFile(root):
 	graphVizFile = open (fileNameRoot+"_graphviz.txt","w")
 	print "##### GRAPHVIZ ###\ndigraph{"
@@ -165,5 +250,7 @@ def makeGraphVizFile(root):
 
 	graphVizFile.write("}\n")
 	graphVizFile.close()
-makeMultiFile(root)
+#makeMultiFile(root)
+makeNaiveFile(root)
+# graphviz file is the same for all files
 makeGraphVizFile(root)
