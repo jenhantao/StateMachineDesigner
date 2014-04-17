@@ -92,6 +92,8 @@ def makeNaiveFile(root):
 # assign state numbers
 	pigeonFile = open(fileNameRoot+"_pigeon.txt",'w')
 	geneFunctionFile = open(fileNameRoot+"_geneFunction.txt",'w')
+	#print "### GENE FUNCTION ###"
+	geneFunctionFile.write("### GENE FUNCTION ###\n")
 	allModuleNodes = [];
 	queue = []
 	queue.append(root)
@@ -109,55 +111,77 @@ def makeNaiveFile(root):
 			for neighbor in currentNode.children:
 				if not child.letter == neighbor.letter:
 					child.neighbors.append(neighbor)
-		for node in allModuleNodes:
-			#partType partName color
-			print "##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###"
-			pigeonFile.write("##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###\n")
-			if node.level==1:
-			# starting nodes
-				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
-				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
-			elif len(node.children) == 0:
-			# leaf nodes
-				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
-				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
-			else:
-			# intermediate nodes
-				recombString = "" # gives pigeon code for the recombinase associated with this
-				recombString += "" # for removing promoter
-				# for removing terminators in child nodes
-				for child in node.children:
-					recombString += # for removing promoter
-				# for removing promoters of neighbors' children
-				for neighbor in node.neighbors:
-					recombString += # for removing promoter
-				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\n"+recombString+"\nt t\n# Arcs"
-				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nC C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
-		# print out what each gene/recombinase does
-			print "### GENE FUNCTION ###"
-			geneFunctionFile.write("### GENE FUNCTION ###\n")
-			if len(node.children) > 0:
-				# gene is a recombinase
-				print "C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:"
-				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:\n")
-				print str(node.state)+str(node.letter)+"p"
-				geneFunctionFile.write(str(node.state)+str(node.letter)+"p\n")
-				for neighbor in node.neighbors:
-					print str(neighbor.state)+str(neighbor.letter)+"p"
-					geneFunctionFile.write(str(neighbor.state)+str(neighbor.letter)+"p\n")
-				for child in node.children:
-					print str(child.state)+str(child.letter)+"t"
-					geneFunctionFile.write(str(child.state)+str(child.letter)+"t\n")
-			else:
-				# gene is a reporter
-				parent = node.parent
-				word = node.letter
-				while not parent == None:
-					if not parent.letter == None:
-						word = str(parent.letter)+word
-					parent = parent.parent
-				print "C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word
-				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word+"\n")
+	for node in allModuleNodes:
+		#partType partName color
+		#print "##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###"
+		pigeonFile.write("##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###\n")
+		if node.level==1:
+		# starting nodes
+			recombString = "" # gives pigeon code for the recombinase associated with this
+			recombString += "c C" + str(node.state) + str(node.letter) + " 6\n" # for removing promoter
+			# for removing terminators in child nodes
+			counter = 0
+			for child in node.children:
+				recombString += "c C" + str(node.state) + str(node.letter) + "_c" + str(counter) + " 6\n" # for removing promoter
+				counter += 1
+			# for removing promoters of neighbors' children
+			counter = 0
+			for neighbor in node.neighbors:
+				recombString += "c C" + str(node.state) + str(node.letter) + "_n" + str(counter) + " 6\n" # for removing promoter
+				counter += 1
+			#print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+			pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n"+recombString+ "t t\n# Arcs\n")
+		elif len(node.children) == 0:
+		# leaf nodes
+			#print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+			pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+		else:
+		# intermediate nodes
+			recombString = "" # gives pigeon code for the recombinase associated with this
+			recombString += "c C" + str(node.state) + str(node.letter) + " 6\n" # for removing promoter
+			# for removing terminators in child nodes
+			counter = 0
+			for child in node.children:
+				recombString += "c C" + str(node.state) + str(node.letter) + "_c" + str(counter) + " 6\n" # for removing promoter
+				counter += 1
+			# for removing promoters of neighbors' children
+			counter = 0
+			for neighbor in node.neighbors:
+				recombString += "c C" + str(node.state) + str(node.letter) + "_n" + str(counter) + " 6\n" # for removing promoter
+				counter += 1
+			#print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\n"+recombString+"t t\n# Arcs"
+			pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\n"+recombString+"t t\n# Arcs\n")
+	# #print out what each gene/recombinase does
+		if len(node.children) > 0:
+			# gene is a recombinase
+			#print "C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:"
+			geneFunctionFile.write("C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:\n")
+			#print str(node.state)+str(node.letter)+"p"
+			geneFunctionFile.write(str(node.state)+str(node.letter)+"p\n")
+			counter = 0
+			for neighbor in node.neighbors:
+				#print "C"+str(node.state)+str(node.letter)+"_n"+str(counter)+" is a recombinase recognizing the following sites:"
+				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+"_n"+str(counter)+" is a recombinase recognizing the following sites:\n")
+				#print str(neighbor.state)+str(neighbor.letter)+"p"
+				geneFunctionFile.write(str(neighbor.state)+str(neighbor.letter)+"p\n")
+				counter += 1
+			counter = 0
+			for child in node.children:
+				#print "C"+str(node.state)+str(node.letter)+"_c"+str(counter)+" is a recombinase recognizing the following sites:"
+				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+"_c"+str(counter)+" is a recombinase recognizing the following sites:\n")
+				#print str(child.state)+str(child.letter)+"t"
+				geneFunctionFile.write(str(child.state)+str(child.letter)+"t\n")
+				counter += 1
+		else:
+			# gene is a reporter
+			parent = node.parent
+			word = node.letter
+			while not parent == None:
+				if not parent.letter == None:
+					word = str(parent.letter)+word
+				parent = parent.parent
+			#print "C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word
+			geneFunctionFile.write("C"+str(node.state)+str(node.letter)+ " is a reporter for word\n: "+word+"\n")
 	pigeonFile.close()
 	geneFunctionFile.close()
 
@@ -184,41 +208,41 @@ def makeMultiFile(root):
 			for neighbor in currentNode.children:
 				if not child.letter == neighbor.letter:
 					child.neighbors.append(neighbor)
-		for node in allModuleNodes:
-			#partType partName color
-			print "##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###"
-			pigeonFile.write("##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###\n")
-			if node.level==1:
-				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
-				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
-			else:
-				print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
-				pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
-		# print out what each gene/recombinase does
-			print "### GENE FUNCTION ###"
-			geneFunctionFile.write("### GENE FUNCTION ###\n")
-			if len(node.children) > 0:
-				# gene is a recombinase
-				print "C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:"
-				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:\n")
-				print str(node.state)+str(node.letter)+"p"
-				geneFunctionFile.write(str(node.state)+str(node.letter)+"p\n")
-				for neighbor in node.neighbors:
-					print str(neighbor.state)+str(neighbor.letter)+"p"
-					geneFunctionFile.write(str(neighbor.state)+str(neighbor.letter)+"p\n")
-				for child in node.children:
-					print str(child.state)+str(child.letter)+"t"
-					geneFunctionFile.write(str(child.state)+str(child.letter)+"t\n")
-			else:
-				# gene is a reporter
-				parent = node.parent
-				word = node.letter
-				while not parent == None:
-					if not parent.letter == None:
-						word = str(parent.letter)+word
-					parent = parent.parent
-				print "C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word
-				geneFunctionFile.write("C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word+"\n")
+	for node in allModuleNodes:
+		#partType partName color
+		#print "##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###"
+		pigeonFile.write("##### MODULE "+str(node.parent.state)+"-"+str(node.state)+" #####\n### PIGEON CODE ###\n")
+		if node.level==1:
+			#print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+			pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+		else:
+			#print "t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs"
+			pigeonFile.write("t t\n> "+str(node.state)+str(node.letter)+"p 2\np p_"+str(node.letter)+" 2\n> "+str(node.state)+str(node.letter)+"p 2\n> "+str(node.state)+str(node.letter)+"t 4\nt t 4\n> "+str(node.state)+str(node.letter)+"t 4\nc C"+str(node.state)+str(node.letter) +" 6\nt t\n# Arcs\n")
+	# #print out what each gene/recombinase does
+		#print "### GENE FUNCTION ###"
+		geneFunctionFile.write("### GENE FUNCTION ###\n")
+		if len(node.children) > 0:
+			# gene is a recombinase
+			#print "C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:"
+			geneFunctionFile.write("C"+str(node.state)+str(node.letter)+" is a recombinase recognizing the following sites:\n")
+			#print str(node.state)+str(node.letter)+"p"
+			geneFunctionFile.write(str(node.state)+str(node.letter)+"p\n")
+			for neighbor in node.neighbors:
+				#print str(neighbor.state)+str(neighbor.letter)+"p"
+				geneFunctionFile.write(str(neighbor.state)+str(neighbor.letter)+"p\n")
+			for child in node.children:
+				#print str(child.state)+str(child.letter)+"t"
+				geneFunctionFile.write(str(child.state)+str(child.letter)+"t\n")
+		else:
+			# gene is a reporter
+			parent = node.parent
+			word = node.letter
+			while not parent == None:
+				if not parent.letter == None:
+					word = str(parent.letter)+word
+				parent = parent.parent
+			#print "C"+str(node.state)+str(node.letter)+ " is a reporter for word: "+word
+			geneFunctionFile.write("C"+str(node.state)+str(node.letter)+ " is a reporter for word\n: "+word+"\n")
 	pigeonFile.close()
 	geneFunctionFile.close()
 
@@ -235,7 +259,7 @@ def makeNestedFile(root):
 # make the graphviz graph
 def makeGraphVizFile(root):
 	graphVizFile = open (fileNameRoot+"_graphviz.txt","w")
-	print "##### GRAPHVIZ ###\ndigraph{"
+	#print "##### GRAPHVIZ ###\ndigraph{"
 	graphVizFile.write("##### GRAPHVIZ ###\ndigraph{\n")
 	queue = []
 	queue.append(root)
@@ -244,9 +268,9 @@ def makeGraphVizFile(root):
 		queue.remove(currentNode)
 		for child in currentNode.children:
 			queue.append(child)
-			print str(currentNode.state)+ " -> "+str(child.state)+"[label=\""+str(child.letter)+"\"]"
+			#print str(currentNode.state)+ " -> "+str(child.state)+"[label=\""+str(child.letter)+"\"]"
 			graphVizFile.write(str(currentNode.state)+ " -> "+str(child.state)+"[label=\""+str(child.letter)+"\"]\n")
-	print "}"
+	#print "}"
 
 	graphVizFile.write("}\n")
 	graphVizFile.close()
