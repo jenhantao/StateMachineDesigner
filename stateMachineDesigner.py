@@ -17,11 +17,11 @@ class Node:
 ### Arguments ###
 inputFileName = sys.argv[1]
 fileNameRoot = inputFileName.split(".")[0]
+multi = False
 if len(sys.argv) > 2:
-	if sys.argv[2] == "n":
-		nested = True # recombinase sites are nested
-	elif sys.argv[2] == "m":
+	if sys.argv[2] == "m":
 		multi = True # recombinase can recognize multiple sites
+	
 
 inputFile = open(inputFileName)
 input = inputFile.readlines()
@@ -246,16 +246,6 @@ def makeMultiFile(root):
 	pigeonFile.close()
 	geneFunctionFile.close()
 
-
-def makeNestedFile(root):
-# gather the neighbors for each node - this is used to determine the recognition sites recognized by each recombinase
-# assign state numbers
-	pigeonFile = open(fileNameRoot+"_pigeon.txt",'w')
-	geneFunctionFile = open(fileNameRoot+"_geneFunction.txt",'w')
-
-	pigeonFile.close()
-	geneFunctionFile.close()
-
 # make the graphviz graph
 def makeGraphVizFile(root):
 	graphVizFile = open (fileNameRoot+"_graphviz.txt","w")
@@ -274,7 +264,11 @@ def makeGraphVizFile(root):
 
 	graphVizFile.write("}\n")
 	graphVizFile.close()
-#makeMultiFile(root)
-makeNaiveFile(root)
+
+# make files
+if multi:
+	makeMultiFile(root)
+else:
+	makeNaiveFile(root)
 # graphviz file is the same for all files
 makeGraphVizFile(root)
